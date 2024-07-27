@@ -6,8 +6,11 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+        tomato: '#FF6347',
+      },
       animation: {
-        fadeIn: 'fadeIn 3s ease-in-out',
+        fadeIn: 'fadeIn 0.5s ease-in-out',
       },
       keyframes: {
         fadeIn: {
@@ -21,4 +24,3 @@ export default {
     require('tailwind-scrollbar-hide')
   ],
 }
-
