@@ -2,7 +2,7 @@ import { menu_list } from "../../assets/assets";
 
 const ExploreMenu = () => {
   return (
-    <div className="flex flex-col gap-5" id="explore-menu">
+    <div className="flex flex-col gap-5 max-w-[80%] m-auto" id="explore-menu">
       <h1 className="text-[#262626] font-medium text-4xl">Explore our menu</h1>
       <p className="max-w-3xl text-gray-600">
         Choose from a diverse menu featuring a delectable array of dishes
