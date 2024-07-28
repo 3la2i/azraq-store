@@ -2,8 +2,9 @@ import { useState } from "react";
 import { assets } from "../../assets/assets";
 
 import { Link } from 'react-router-dom';
-const Navbar = () => {
+const Navbar = ({setShowLogin}) => {
   const [menu, setMenu] = useState("menu");
+  
 
   return (
     <div className="flex justify-between items-center py-5 max-w-[80%] m-auto">
@@ -13,7 +14,7 @@ const Navbar = () => {
           onClick={() => setMenu("home")}
           className={`${menu === "home" ? "border-b-2 border-[#49557e] pb-1" : ""} cursor-pointer`}
         >
-          home
+         <Link to="/"> home</Link>
         </li>
         <li
           onClick={() => setMenu("menu")}
@@ -37,10 +38,10 @@ const Navbar = () => {
       <div className="flex items-center gap-3.5">
         <img src={assets.search_icon} alt="search icon" />
         <div className="relative">
-         <Link to="/cart"> <img src={assets.basket_icon} alt="basket icon" /></Link>
+         <Link to="/cart"> <img className="w-8 " src={assets.basket_icon} alt="basket icon" /></Link>
           <div className="absolute min-w-[10px] min-h-[10px] bg-tomato rounded-full top-[-8px] right-[-8px]"></div>
         </div>
-        <button className="bg-transparent text-lg text-[#49557e] border border-tomato py-2 px-8 rounded-full transition duration-300 hover:bg-[#fff4f2]">
+        <button onClick={()=>setShowLogin(true)} className="bg-transparent text-lg text-[#49557e] border border-tomato py-2 px-8 rounded-full transition duration-300 hover:bg-[#fff4f2]">
           sign in
         </button>
       </div>
