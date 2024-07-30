@@ -1,48 +1,64 @@
 import { useState } from "react";
 import { assets } from "../../assets/assets";
-
 import { Link } from 'react-router-dom';
-const Navbar = ({setShowLogin}) => {
+
+const Navbar = ({ setShowLogin }) => {
   const [menu, setMenu] = useState("menu");
-  
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="flex justify-between items-center py-5 max-w-[80%] m-auto">
-      <Link to="/"><img src={assets.logo} className="w-36 " alt="logo  "  /></Link>
-      <ul className="flex list-none gap-5 text-[#49557e] text-lg">
+    <div className="flex flex-col md:flex-row justify-between items-center py-5 max-w-[80%] m-auto">
+      <Link to="/">
+        <img src={assets.logo} className="w-36" alt="logo" />
+      </Link>
+      <div className="relative md:hidden">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="text-[#49557e] text-2xl focus:outline-none"
+        >
+          {isOpen ? "✖️" : "☰"}
+        </button>
+      </div>
+      <ul
+        className={`md:flex list-none gap-5 text-[#49557e] text-lg ${isOpen ? "block" : "hidden"} md:block`}
+      >
         <li
           onClick={() => setMenu("home")}
           className={`${menu === "home" ? "border-b-2 border-[#49557e] pb-1" : ""} cursor-pointer`}
         >
-         <Link to="/"> home</Link>
+          <Link to="/">Home</Link>
         </li>
         <li
           onClick={() => setMenu("menu")}
           className={`${menu === "menu" ? "border-b-2 border-[#49557e] pb-1" : ""} cursor-pointer`}
         >
-          menu
+          <Link to="/menu">Menu</Link>
         </li>
         <li
           onClick={() => setMenu("contact us")}
           className={`${menu === "contact us" ? "border-b-2 border-[#49557e] pb-1" : ""} cursor-pointer`}
         >
-          contact us
+          <Link to="/contact">Contact Us</Link>
         </li>
         <li
           onClick={() => setMenu("about us")}
           className={`${menu === "about us" ? "border-b-2 border-[#49557e] pb-1" : ""} cursor-pointer`}
         >
-          about us
+          <Link to="/about">About Us</Link>
         </li>
       </ul>
-      <div className="flex items-center gap-3.5">
-        <img src={assets.search_icon} alt="search icon" />
+      <div className="flex items-center gap-3.5 mt-4 md:mt-0">
         <div className="relative">
-         <Link to="/cart"> <img className="w-8 " src={assets.basket_icon} alt="basket icon" /></Link>
+          <Link to="/cart">
+            <img className="w-8" src={assets.basket_icon} alt="basket icon" />
+          </Link>
           <div className="absolute min-w-[10px] min-h-[10px] bg-tomato rounded-full top-[-8px] right-[-8px]"></div>
         </div>
-        <button onClick={()=>setShowLogin(true)} className="bg-transparent text-lg text-[#49557e] border border-tomato py-2 px-8 rounded-full transition duration-300 hover:bg-[#fff4f2]">
-          sign in
+        <button
+          onClick={() => setShowLogin(true)}
+          className="bg-transparent text-lg text-[#49557e] border border-tomato py-2 px-8 rounded-full transition duration-300 hover:bg-[#fff4f2]"
+        >
+          Sign In
         </button>
       </div>
     </div>
@@ -50,6 +66,7 @@ const Navbar = ({setShowLogin}) => {
 };
 
 export default Navbar;
+
 
 
 // import './Header.css'
