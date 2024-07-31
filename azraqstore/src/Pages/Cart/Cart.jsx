@@ -4,7 +4,7 @@ const TableRow = ({ item }) => (
   <tr className="border-b">
     <td className="py-2">{item.name}</td>
     <td className="py-2">${item.price}</td>
-    <td className="py-2">1</td> {/* استخدم كمية حقيقية إذا كانت متاحة */}
+    <td className="py-2">1</td> 
     <td className="py-2">${item.price}</td>
     <td className="py-2 cursor-pointer text-red-500">x</td>
   </tr>

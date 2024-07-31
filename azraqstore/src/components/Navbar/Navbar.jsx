@@ -28,12 +28,12 @@ const Navbar = ({ setShowLogin }) => {
         >
           <Link to="/">Home</Link>
         </li>
-        <li
+        {/* <li
           onClick={() => setMenu("menu")}
           className={`${menu === "menu" ? "border-b-2 border-[#49557e] pb-1" : ""} cursor-pointer`}
         >
           <Link to="/menu">Menu</Link>
-        </li>
+        </li> */}
         <li
           onClick={() => setMenu("contact us")}
           className={`${menu === "contact us" ? "border-b-2 border-[#49557e] pb-1" : ""} cursor-pointer`}
@@ -44,7 +44,7 @@ const Navbar = ({ setShowLogin }) => {
           onClick={() => setMenu("about us")}
           className={`${menu === "about us" ? "border-b-2 border-[#49557e] pb-1" : ""} cursor-pointer`}
         >
-          <Link to="/about">About Us</Link>
+          <Link to="/aboutus">About Us</Link>
         </li>
       </ul>
       <div className="flex items-center gap-3.5 mt-4 md:mt-0">

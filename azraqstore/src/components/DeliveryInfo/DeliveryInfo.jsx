@@ -1,6 +1,4 @@
 
-import React from 'react';
-
 const INPUT_CLASS = 'mb-4 p-2 border border-border rounded w-full';
 const FLEX_CLASS = 'flex justify-between';
 const BUTTON_CLASS = 'bg-tomato  text-secondary-foreground hover:bg-secondary/80 p-2 rounded-lg w-full';
