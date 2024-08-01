@@ -10,6 +10,13 @@ import LoginPopup from "./components/LoginPopup/LoginPopup";
 import DeliveryInfo from "./components/DeliveryInfo/DeliveryInfo";
 import ContactUs from "./Pages/ContactUs/ContactUs";
 import AboutUs from "./Pages/AboutUs/AboutUs";
+import Admin from "./Pages/Admin/Admin";
+import AddItem from "./Pages/Admin/AddItem/AddItem";
+import SideBar from "./Pages/Admin/SideBar/SideBar";
+import ListItems from "./Pages/Admin/ListItem/ListItems";
+import ProfilePage from "./Pages/ProfilePage/ProfilePage";
+import Orders from "./Pages/Admin/Orders/Orders";
+
 
 
 
@@ -20,7 +27,7 @@ const App = () => {
     {
       _id: "1",
       name: "Greek salad",
-      image: "path/to/food_1", // قم بإدراج المسار الصحيح للصورة
+      image: "path/to/food_1",
       price: 12,
       description: "Food provides essential nutrients for overall health and well-being",
       category: "Salad"
@@ -29,27 +36,25 @@ const App = () => {
 
   return (
     <>
-      {showLogin ? <LoginPopup setShowLogin={setShowLogin} /> : <></>}
+      {showLogin && <LoginPopup setShowLogin={setShowLogin} />}
       <div className="app">
-        
-        <Navbar setShowLogin={setShowLogin} />
-
         <Routes>
-       
-          <Route path="/" element={<Home />} />
-          <Route path="/cart" element={<Cart foodList={food_list} />} />
-          <Route path="/order" element={<PlaceOrder />} />
-          <Route path="/delivryInfo" element={<DeliveryInfo />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/aboutus" element={<AboutUs />} />
+          <Route path="/admin" element={<> <Admin /> </>} />
+          <Route path="/" element={<><Navbar setShowLogin={setShowLogin} /><Home /><Footer /></>} />
+          <Route path="/cart" element={<><Navbar setShowLogin={setShowLogin} /><Cart foodList={food_list} /><Footer /></>} />
+          <Route path="/order" element={<><Navbar setShowLogin={setShowLogin} /><PlaceOrder /><Footer /></>} />
+          <Route path="/delivryInfo" element={<><Navbar setShowLogin={setShowLogin} /><DeliveryInfo /><Footer /></>} />
+          <Route path="/contact" element={<><Navbar setShowLogin={setShowLogin} /><ContactUs /><Footer /></>} />
+          <Route path="/aboutus" element={<><Navbar setShowLogin={setShowLogin} /><AboutUs /><Footer /></>} />
+          <Route path="/additem" element={<><Navbar setShowLogin={setShowLogin} /> <SideBar/><AddItem /> </>} />
+          <Route path="/listitems" element={<><Navbar setShowLogin={setShowLogin} /> <SideBar/><ListItems /> </>} />
+          <Route path="/orders" element={<><Navbar setShowLogin={setShowLogin} /><SideBar/><Orders /><Footer /></>} />
+          <Route path="/profile" element={<><Navbar setShowLogin={setShowLogin} /><ProfilePage /><Footer /></>} />
+
         </Routes>
-        <Footer />
-        
-        
       </div>
     </>
   );
 };
 
 export default App;
-

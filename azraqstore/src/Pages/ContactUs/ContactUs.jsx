@@ -11,17 +11,17 @@ const ContactUs = () => {
                     <form>
                         <div className="mb-4">
                             <label htmlFor="name" className="block text-sm font-medium">Your Name</label>
-                            <input type="text" id="name" name="name" placeholder="John Doe" className={inputClasses} />
+                            <input type="text" id="name" name="name" placeholder="your name" className={inputClasses} />
                         </div>
-                        <div className="mb-4">
+                        <div className= "mb-4">
                             <label htmlFor="email" className="block text-sm font-medium">Your Email</label>
-                            <input type="email" id="email" name="email" placeholder="john.doe@example.com" className={inputClasses} />
+                            <input type="email" id="email" name="email" placeholder="your email" className={inputClasses} />
                         </div>
                         <div className="mb-4">
                             <label htmlFor="message" className="block text-sm font-medium">Message</label>
                             <textarea id="message" name="message" rows="4" placeholder="Your message here..." className={inputClasses}></textarea>
                         </div>
-                        <button type="submit" className={buttonClasses}>Submit</button>
+                        <button type="submit" className= {buttonClasses}>Submit</button>
                     </form>
                 </div>
                 <img className="w-96 ml-8" src="https://firebasestorage.googleapis.com/v0/b/la2project-4d60e.appspot.com/o/contactimg%2Ffor%20contact.png?alt=media&token=ca3bcc9a-da6b-410f-bcfd-9ed8052684eb" alt="Contact Us" />
