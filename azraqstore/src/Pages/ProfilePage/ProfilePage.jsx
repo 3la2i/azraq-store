@@ -1,35 +1,39 @@
-
+import React from 'react';
 
 const ProfilePage = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center py-12 bg-white">
-      <div className="container mx-auto p-6">
-        <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg overflow-hidden">
-          <div className="bg-tomato text-white text-center p-8">
-            <img
-              alt="Profile"
-              className="w-32 h-32 mb-4 rounded-full border-4 border-white"
-              src=""
-            />
-            <h2 className="font-bold text-3xl">Your Name</h2>
-          </div>
-          <div className="flex justify-center mt-6">
-            <button className="bg-tomato text-white rounded-lg p-3 px-6 hover:bg-red-600 transition-colors duration-300">
-              Edit
-            </button>
-          </div>
-          <div className="p-8">
-            <h4 className="text-tomato font-bold mb-5 text-2xl">Your Information:</h4>
-            <div className="mb-5">
-              <p className="text-tomato font-medium">Email</p>
-              <p className="text-gray-800">your.email@example.com</p>
-            </div>
-          </div>
+  const user = {
+    name: "alaa",
+    email: "alaa.ata25@gmail.com",
+    avatar: "https://placehold.co/100x100?text=Avatar",
+    about: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum. Quisque vel odio nec nisi aliquet euismod."
+  };
 
-            </div>
+  return (
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
+      <div className="max-w-4xl w-full bg-white rounded-lg shadow-lg p-8">
+        <h1 className="text-4xl font-bold text-tomato">User Profile</h1>
+        <div className="flex items-center mt-4">
+          <img
+            className="w-40 h-40 rounded-full border-4 border-tomato"
+            alt="User Avatar"
+            src={user.avatar}
+          />
+          <div className="ml-8">
+            <h2 className="text-3xl font-semibold text-gray-800">{user.name}</h2>
+            <p className="text-gray-600">{user.email}</p>
           </div>
         </div>
-
+        <div className="mt-6">
+          <h3 className="text-xl font-semibold text-tomato">About Me</h3>
+          <p className="text-gray-600">{user.about}</p>
+        </div>
+        <div className="mt-6">
+          <button className="bg-tomato text-white hover:bg-red-600 px-8 py-4 rounded-lg">
+            Edit Profile
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 
