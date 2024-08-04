@@ -48,7 +48,7 @@ const App = () => {
           <Route path="/aboutus" element={<><Navbar setShowLogin={setShowLogin} /><AboutUs /><Footer /></>} />
           <Route path="/additem" element={<><Navbar setShowLogin={setShowLogin} /> <SideBar/><AddItem /> </>} />
           <Route path="/listitems" element={<><Navbar setShowLogin={setShowLogin} /> <SideBar/><ListItems /> </>} />
-          <Route path="/orders" element={<><Navbar setShowLogin={setShowLogin} /><SideBar/><Orders /><Footer /></>} />
+          <Route path="/orders" element={<><Navbar setShowLogin={setShowLogin} /><SideBar/><Orders /></>} />
           <Route path="/profile" element={<><Navbar setShowLogin={setShowLogin} /><ProfilePage /><Footer /></>} />
 
         </Routes>
