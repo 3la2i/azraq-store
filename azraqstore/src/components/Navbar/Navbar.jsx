@@ -1,10 +1,19 @@
-import { useState } from "react";
+// Navbar.js
+import React, { useState } from "react";
 import { assets } from "../../assets/assets";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
-const Navbar = ({ setShowLogin }) => {
+const Navbar = () => {
   const [menu, setMenu] = useState("menu");
   const [isOpen, setIsOpen] = useState(false);
+  const { isLoggedIn, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <nav className="bg-white shadow-md">
@@ -22,9 +31,7 @@ const Navbar = ({ setShowLogin }) => {
           </button>
         </div>
 
-       
         <div className={`w-full md:flex md:items-center md:w-auto ${isOpen ? "block" : "hidden"}`}>
-          
           <ul className="md:flex md:gap-6 mt-4 md:mt-0 list-none text-gray-800 text-lg mr-11">
             <li
               onClick={() => setMenu("home")}
@@ -50,6 +57,14 @@ const Navbar = ({ setShowLogin }) => {
             >
               <Link to="/aboutus">About Us</Link>
             </li>
+            <li
+              onClick={() => setMenu("restaurants")}
+              className={`${
+                menu === "restaurants" ? "border-b-2 border-gray-800 pb-1" : ""
+              } cursor-pointer`}
+            >
+              <Link to="/resturant">Restaurants</Link>
+            </li>
           </ul>
 
           <div className="flex items-center gap-4 mt-4 md:mt-0 md:ml-auto">
@@ -59,12 +74,29 @@ const Navbar = ({ setShowLogin }) => {
               </Link>
               <div className="absolute bg-red-500 rounded-full w-2 h-2 top-0 right-0"></div>
             </div>
-            <button
-              onClick={() => setShowLogin(true)}
-              className="bg-transparent text-lg text-gray-800 border border-red-500 py-2 px-6 rounded-full transition duration-300 hover:bg-red-100"
-            >
-              Sign In
-            </button>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 text-lg text-white py-2 px-6 rounded-full transition duration-300 hover:bg-red-600"
+              >
+                Logout
+              </button>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="bg-transparent text-lg text-gray-800 border border-red-500 py-2 px-6 rounded-full transition duration-300 hover:bg-red-100"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="bg-red-500 text-lg text-white py-2 px-6 rounded-full transition duration-300 hover:bg-red-600"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -73,67 +105,3 @@ const Navbar = ({ setShowLogin }) => {
 };
 
 export default Navbar;
-
-
-
-// import './Header.css'
-// const Header = () => {
-//   return (
-//     <>
-//       <div>
-//         <header>
-//           <div className="flex justify-between items-center h-16 px-8 bg-orange-100 border-b-2 border-orange-300 shadow-md">
-//             <div className="logo">
-//               <img
-//                 src="../images/572f668b6fd540a6acca7dfe42c408c4-free.png"
-//                 alt=""
-//                 className="w-36"
-//               />
-//             </div>
-//             <div className="hidden">
-//               <i className="fa-solid fa-bars"></i>
-//               <i className="fa-solid fa-xmark" id="hdcross"></i>
-//             </div>
-//             <div className="nav">
-//               <ul className="flex items-center space-x-6">
-//                 <a href="#">
-//                   <li className="hover:text-orange-600">Home</li>
-//                 </a>
-//                 <a href="#">
-//                   <li className="hover:text-orange-600">About</li>
-//                 </a>
-//                 <a href="#">
-//                   <li className="hover:text-orange-600">Restaurant</li>
-//                 </a>
-//                 <a href="#">
-//                   <li className="hover:text-orange-600">Food Menu</li>
-//                 </a>
-//               </ul>
-//             </div>
-//             <div className="account flex justify-end">
-//               <ul className="flex items-center space-x-6">
-//                 <a href="#">
-//                   <li>
-//                     <i className="fa-solid fa-house-chimney"></i>
-//                   </li>
-//                 </a>
-//                 <a href="#">
-//                   <li>
-//                     <i className="fa-solid fa-magnifying-glass searchicon" id="seachicon2"></i>
-//                   </li>
-//                 </a>
-//                 <a href="#">
-//                   <li>
-//                     <i className="fa-solid fa-user" id="user-lap"></i>
-//                   </li>
-//                 </a>
-//               </ul>
-//             </div>
-//           </div>
-//         </header>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default Header;

@@ -1,6 +1,14 @@
 import { assets } from "../../assets/assets";
 
 const Footer = () => {
+  
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth', // Smooth scroll effect
+    });
+  };
+
   return (
     <div className="text-gray-400 bg-gray-900 flex flex-col items-center gap-5 p-5 pt-20 mt-32" id="footer">
       <div className="w-full grid grid-cols-[2fr_1fr_1fr] gap-20">
@@ -22,7 +30,7 @@ const Footer = () => {
         <div className="flex flex-col items-start gap-5">
           <h2 className="text-white">COMPANY</h2>
           <ul className="flex flex-col gap-2">
-            <li className="cursor-pointer">Home</li>
+            <li className="cursor-pointer" onClick={scrollToTop}>Home</li>
             <li className="cursor-pointer">About us</li>
             <li className="cursor-pointer">Delivery</li>
             <li className="cursor-pointer">Privacy policy</li>
