@@ -1,3 +1,4 @@
+// models/Cart.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -12,19 +13,17 @@ const cartSchema = new Schema({
       type: Number,
       required: true,
       default: 0,
-      // total will be calculated dynamically based on items' prices and quantities
     },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
-  });
-  
-  // Pre-save middleware to calculate total
-  cartSchema.pre('save', function (next) {
+});
+
+cartSchema.pre('save', function (next) {
     this.total = this.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     next();
-  });
-  
-  const Cart = mongoose.model('Cart', cartSchema);
-  
-  module.exports = Cart;
-  
+});
+ 
+const Cart = mongoose.model('Cart', cartSchema);
+
+module.exports = Cart;
+

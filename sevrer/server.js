@@ -7,6 +7,10 @@ const categoryRoutes = require('./Routes/categoryRoutes');
 const contactRoutes = require('./Routes/contactRoute');
 const authRoutes = require('./Routes/authRoutes');
 
+const cartRoutes = require('./Routes/cartRoutes');
+const profileRoutes = require('./Routes/profileRoutes');
+const orderRoutes = require('./Routes/orderRoutes');
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,7 +30,11 @@ app.use(cors()); // Enable CORS for all routes
 
 // Use product routes
 app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/orders', orderRoutes);
 // Use restaurant routes
+
 app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/auth', authRoutes);

@@ -27,6 +27,24 @@ const ProductDetails = () => {
     fetchProductDetails();
   }, [id]);
 
+  const addToCart = async () => {
+    const user = JSON.parse(localStorage.getItem('user')) 
+    console.log('user:::', user)
+    try {
+    
+       await axios.post(`http://localhost:5000/api/cart/add`, {
+        userId: user._id, // Replace with actual user ID from your authentication system
+        productId: product._id,
+        quantity: 1
+      });
+      alert('Product added to cart!');
+      // Optionally, you can update the UI or redirect to the cart page
+    } catch (error) {
+      console.error('Error adding product to cart:', error);
+      alert('Failed to add product to cart. Please try again.');
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading...</div>;
   }
@@ -81,7 +99,10 @@ const ProductDetails = () => {
                 </p>
               </div>
             )}
-            <button className="mt-6 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full flex items-center">
+            <button 
+              onClick={addToCart}
+              className="mt-6 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full flex items-center"
+            >
               <ShoppingBag size={20} className="mr-2" />
               Add to Cart
             </button>

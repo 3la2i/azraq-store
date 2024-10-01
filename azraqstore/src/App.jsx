@@ -28,16 +28,16 @@ import ProductDetails from "./components/Products/productDetails";
 const App = () => {
   const location = useLocation();
 
-  const food_list = [
-    {
-      _id: "1",
-      name: "Greek salad",
-      image: "path/to/food_1",
-      price: 12,
-      description: "Food provides essential nutrients for overall health and well-being",
-      category: "Salad"
-    }
-  ];
+  // const food_list = [
+  //   {
+  //     _id: "1",
+  //     name: "Greek salad",
+  //     image: "path/to/food_1",
+  //     price: 12,
+  //     description: "Food provides essential nutrients for overall health and well-being",
+  //     category: "Salad"
+  //   }
+  // ];
 
   return (
     <div className="app">
@@ -45,7 +45,7 @@ const App = () => {
       <Routes>
         <Route path="/admin" element={<Admin />} />
         <Route path="/" element={<Home />} />
-        <Route path="/cart" element={<Cart foodList={food_list} />} />
+        <Route path="/cart" element={<Cart />} />
         <Route path="/order" element={<PlaceOrder />} />
         <Route path="/delivryInfo" element={<DeliveryInfo />} />
         <Route path="/contact" element={<ContactUs />} />

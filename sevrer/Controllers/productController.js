@@ -22,6 +22,7 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+
 // Get a single product by ID
 exports.getProductById = async (req, res) => {
   try {
