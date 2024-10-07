@@ -1,26 +1,23 @@
-// middleware/auth.js
+
+
+// C:\Users\Orange\Desktop\azraq-store\sevrer\middleware\auth.js
 const jwt = require('jsonwebtoken');
-const User = require('../Models/user');
-
-// Hardcoded JWT secret
 const JWT_SECRET = 'alaa';
+module.exports = (req, res, next) => {
+  const token = req.header('Authorization')?.split(' ')[1];
+  
+  
+  if (!token) {
+    return res.status(401).json({ message: 'No token, authorization denied' });
+  }
 
-const auth = async (req, res, next) => {
   try {
-    const token = req.header('Authorization').replace('Bearer ', '');
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findOne({ _id: decoded.userId, token: token });
-
-    if (!user) {
-      throw new Error();
-    }
-
-    req.token = token;
-    req.user = user;
+    console.log('decoded', decoded);
+    
+    req.user = decoded;
     next();
-  } catch (error) {
-    res.status(401).send({ error: 'Please authenticate.' });
+  } catch (err) {
+    res.status(401).json({ message: 'Token is not valid' });
   }
 };
-
-module.exports = auth;

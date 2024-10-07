@@ -3,11 +3,11 @@ import axios from 'axios';
 
 const TableRow = ({ item, removeItem }) => (
   <tr className="border-b">
-    <td className="py-2">{item.product.name}</td>
-    <td className="py-2">${item.price.toFixed(2)}</td>
-    <td className="py-2">{item.quantity}</td> 
-    <td className="py-2">${(item.price * item.quantity).toFixed(2)}</td>
-    <td className="py-2 cursor-pointer text-red-500" onClick={() => removeItem(item.product._id)}>x</td>
+    <td className="py-2">{item?.product?.name}</td>
+    <td className="py-2">${item?.price.toFixed(2)}</td>
+    <td className="py-2">{item?.quantity}</td> 
+    <td className="py-2">${(item?.price * item?.quantity).toFixed(2)}</td>
+    <td className="py-2 cursor-pointer text-red-500" onClick={() => removeItem(item?.product?._id)}>x</td>
   </tr>
 );
 
@@ -73,7 +73,7 @@ const Cart = () => {
         ...deliveryInfo
       };
 
-      const response = await axios.post('http://localhost:5000/api/orders', orderData);
+      const response = await axios.post('http://localhost:5000/api/orders/createOrder', orderData);
       console.log('Order submitted:', response.data);
       // Clear cart and show confirmation
       setCart(null);
@@ -96,6 +96,9 @@ const Cart = () => {
     return <div className="text-center py-8">Your cart is empty.</div>;
   }
 
+  console.log('cart.items', cart.items);
+  
+
   return (
     <div className="max-w-4xl mx-auto p-4 bg-white dark:bg-card rounded shadow-md">
       <div className="flex flex-col md:flex-row">
@@ -113,7 +116,7 @@ const Cart = () => {
             </thead>
             <tbody>
               {cart.items.map(item => (
-                <TableRow key={item.product._id} item={item} removeItem={removeItem} />
+                <TableRow key={item.product?._id} item={item} removeItem={removeItem} />
               ))}
             </tbody>
           </table>
@@ -149,10 +152,6 @@ const Cart = () => {
 };
 
 export default Cart;
-
-
-
-
 
 
 

@@ -20,6 +20,8 @@ import RestaurantDetails from "./components/resturants/RestaurantDetails";
 import Login from "./components/login-signup/Login";
 import SignUp from "./components/login-signup/SignUp";
 import ProductDetails from "./components/Products/productDetails";
+import DriverOrdersPage from "./Pages/driverpage/driver";
+import DriverRouteGuard from "./Pages/driverpage/driverRouteGuard";
 
 
 
@@ -59,6 +61,10 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/product/:id" element={<ProductDetails />} />
+       
+        <Route path="/driver" element={<DriverOrdersPage />} />
+        <Route path="/guard" element={<DriverRouteGuard />} />
+        
        
       </Routes>
       {location.pathname !== "/admin" && <Footer />}

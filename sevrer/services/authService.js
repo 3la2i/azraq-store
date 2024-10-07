@@ -1,40 +1,68 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+
+
+
+// C:\Users\Orange\Desktop\azraq-store\sevrer\services\authService.js
+
+
+
 const User = require('../Models/user');
 
-// Hardcoded JWT secret
-const JWT_SECRET = 'alaa';
 
-exports.signup = async (name, email, password) => {
+
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = 'alaa'; // Consider moving this to an environment variable
+
+const signup = async (name, email, password, role = 'customer') => {
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new Error('Email already in use');
   }
 
-  const user = new User({ name, email, password });
+  const user = new User({ name, email, password, role });
   await user.save();
 
-  const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1d' });
-  user.token = token;
-  await user.save();
-
-  return user;
-};
-
-exports.login = async (email, password) => {
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw new Error('Invalid credentials');
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    throw new Error('Invalid credentials');
-  }
-
-  const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1d' });
+  const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
   user.token = token;
   await user.save();
 
   return { user, token };
 };
+
+const login = async (email, password) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error('Invalid login credentials');
+  }
+
+  // const isPasswordMatch = await user.comparePassword(password);
+  // if (!isPasswordMatch) {
+  //   throw new Error('Invalid login credentials');
+  // }
+
+  const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+  user.token = token;
+  await user.save();
+
+  return { user, token };
+};
+
+const auth = async (req, res, next) => {
+  try {
+    const token = req.header('Authorization').replace('Bearer ', '');
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findOne({ _id: decoded.userId, token });
+
+    if (!user) {
+      throw new Error();
+    }
+
+    req.token = token;
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).send({ error: 'Please authenticate.' });
+  }
+};
+
+module.exports = { signup, login, auth };
