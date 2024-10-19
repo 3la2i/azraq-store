@@ -22,6 +22,7 @@ import SignUp from "./components/login-signup/SignUp";
 import ProductDetails from "./components/Products/productDetails";
 import DriverOrdersPage from "./Pages/driverpage/driver";
 import DriverRouteGuard from "./Pages/driverpage/driverRouteGuard";
+import LandingPage from "./Pages/Home/Landingpage";
 
 
 
@@ -45,8 +46,10 @@ const App = () => {
     <div className="app">
       <Navbar />
       <Routes>
+
         <Route path="/admin" element={<Admin />} />
-        <Route path="/" element={<Home />} />
+        {/* <Route path="/" element={<Home />} /> */}
+        <Route path="/" element={<LandingPage />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/order" element={<PlaceOrder />} />
         <Route path="/delivryInfo" element={<DeliveryInfo />} />

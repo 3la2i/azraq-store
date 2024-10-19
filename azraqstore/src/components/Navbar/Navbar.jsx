@@ -1,8 +1,8 @@
-// Navbar.js
 import React, { useState } from "react";
 import { assets } from "../../assets/assets";
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { User } from 'lucide-react'; // Import the User icon from lucide-react
 
 const Navbar = () => {
   const [menu, setMenu] = useState("menu");
@@ -52,7 +52,7 @@ const Navbar = () => {
             <li
               onClick={() => setMenu("about us")}
               className={`${
-                menu === "about us" ? "border-b-2 border-gray-800    pb-1" : ""
+                menu === "about us" ? "border-b-2 border-gray-800 pb-1" : ""
               } cursor-pointer`}
             >
               <Link to="/aboutus">About Us</Link>
@@ -75,12 +75,20 @@ const Navbar = () => {
               <div className="absolute bg-red-500 rounded-full w-2 h-2 top-0 right-0"></div>
             </div>
             {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-lg text-white py-2 px-6 rounded-full transition duration-300 hover:bg-red-600"
-              >
-                Logout
-              </button>
+              <div className="flex items-center gap-4">
+                <Link 
+                  to="/profile"
+                  className="text-gray-800 hover:text-red-500 transition-colors"
+                >
+                  <User size={30} />
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 text-lg text-white py-2 px-6 rounded-full transition duration-300 hover:bg-red-600"
+                >
+                  Logout
+                </button>
+              </div>
             ) : (
               <>
                 <Link

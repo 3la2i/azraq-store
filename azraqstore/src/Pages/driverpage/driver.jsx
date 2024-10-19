@@ -12,7 +12,6 @@ const DriverOrdersPage = () => {
 
   const fetchOrders = async () => {
     try {
-      setLoading(true);
       const token = localStorage.getItem('token');
       const response = await axios.get('http://localhost:5000/api/orders/available', {
         headers: { Authorization: `Bearer ${token}` }
@@ -21,7 +20,7 @@ const DriverOrdersPage = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching orders:', error);
-      setError('Failed to load orders. Please try again later.');
+      setError('Failed to fetch orders');
       setLoading(false);
     }
   };
@@ -32,11 +31,10 @@ const DriverOrdersPage = () => {
       await axios.put(`http://localhost:5000/api/orders/${orderId}/${action}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      // Refresh the orders list after action
-      fetchOrders();
+      fetchOrders(); // Refresh the order list
     } catch (error) {
-      console.error(`Error ${action} order:`, error);
-      setError(`Failed to ${action} order. Please try again.`);
+      console.error(`Error ${action}ing order:`, error);
+      setError(`Failed to ${action} order`);
     }
   };
 
@@ -53,13 +51,21 @@ const DriverOrdersPage = () => {
               <p><strong>Order ID:</strong> {order._id}</p>
               <p><strong>Total:</strong> ${order.total.toFixed(2)}</p>
               <p><strong>Status:</strong> {order.status}</p>
+              <p><strong>Customer Name:</strong> {order.firstName} {order.lastName}</p>
               <p><strong>Delivery Address:</strong> {order.deliveryAddress.street}, {order.deliveryAddress.city}</p>
               <details>
                 <summary className="cursor-pointer text-blue-500">View Items</summary>
                 <ul className="pl-4">
                   {order.items.map((item, index) => (
-                    <li key={index}>
-                      {item.product?.name} - Quantity: {item.quantity}, Price: ${item.price.toFixed(2)}
+                    <li key={index} className="mb-2">
+                      <p><strong>{item.product.name}</strong> - Quantity: {item.quantity}, Price: ${item.price.toFixed(2)}</p>
+                      {item.product.restaurant && (
+                        <div className="ml-4 text-sm">
+                          <p><strong>Restaurant:</strong> {item.product.restaurant.name}</p>
+                          <p><strong>Address:</strong> {item.product.restaurant.address.street}, {item.product.restaurant.address.city}</p>
+                          <p><strong>Phone:</strong> {item.product.restaurant.phoneNumber}</p>
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>

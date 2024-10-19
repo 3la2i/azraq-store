@@ -1,17 +1,9 @@
-
-
-
-// C:\Users\Orange\Desktop\azraq-store\sevrer\services\authService.js
-
-
-
 const User = require('../Models/user');
-
-
-
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
-const JWT_SECRET = 'alaa'; // Consider moving this to an environment variable
+// Use an environment variable for JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET || 'alaa'; // Fallback for development, but use env var in production
 
 const signup = async (name, email, password, role = 'customer') => {
   const existingUser = await User.findOne({ email });
@@ -19,12 +11,13 @@ const signup = async (name, email, password, role = 'customer') => {
     throw new Error('Email already in use');
   }
 
-  const user = new User({ name, email, password, role });
+  // Hash the password before saving
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const user = new User({ name, email, password: hashedPassword, role });
   await user.save();
 
   const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
-  user.token = token;
-  await user.save();
 
   return { user, token };
 };
@@ -35,32 +28,32 @@ const login = async (email, password) => {
     throw new Error('Invalid login credentials');
   }
 
-  // const isPasswordMatch = await user.comparePassword(password);
-  // if (!isPasswordMatch) {
-  //   throw new Error('Invalid login credentials');
-  // }
+  const isPasswordMatch = await bcrypt.compare(password, user.password);
+  if (!isPasswordMatch) {
+    throw new Error('Invalid login credentials');
+  }
 
   const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
-  user.token = token;
-  await user.save();
 
   return { user, token };
 };
 
 const auth = async (req, res, next) => {
   try {
+    console.log('Auth headers:', req.headers); // Add this line
     const token = req.header('Authorization').replace('Bearer ', '');
+    console.log('Extracted token:', token); // Add this line
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findOne({ _id: decoded.userId, token });
+    const user = await User.findOne({ _id: decoded.userId });
 
     if (!user) {
       throw new Error();
     }
 
-    req.token = token;
     req.user = user;
     next();
   } catch (error) {
+    console.error('Auth error:', error); // Add this line
     res.status(401).send({ error: 'Please authenticate.' });
   }
 };

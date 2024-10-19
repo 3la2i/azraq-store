@@ -50,8 +50,17 @@ const Login = () => {
     setIsLoading(true);
     try {
       const response = await axios.post('http://localhost:5000/api/auth/login', formData);
-      login(response.data.token, response.data.user);
-      navigate('/');
+      const { user, token } = response.data;
+
+      // Save token and user info as needed
+      login(token, user);
+      
+      // Redirect based on user role
+      if (user.role === 'driver') {
+        navigate('/driver'); // Redirect to the /driver path
+      } else {
+        navigate('/'); // Redirect to home or another path for other roles
+      }
     } catch (error) {
       setErrors({ form: error.response?.data?.error || 'Login failed' });
     } finally {
@@ -111,6 +120,7 @@ const Login = () => {
 };
 
 export default Login;
+
 // for login popup
 // import { useState } from "react";
 // import { assets } from "../../assets/assets";

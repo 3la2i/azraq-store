@@ -12,6 +12,8 @@ const productSchema = new Schema({
   isAvailable: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
+  
+
 });
 
 const Product = mongoose.model('Product', productSchema);

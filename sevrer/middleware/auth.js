@@ -1,23 +1,26 @@
-
-
-// C:\Users\Orange\Desktop\azraq-store\sevrer\middleware\auth.js
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = 'alaa';
+
 module.exports = (req, res, next) => {
-  const token = req.header('Authorization')?.split(' ')[1];
-  
+  console.log('Auth headers:', req.headers); // Log all headers
+  const authHeader = req.header('Authorization');
+  console.log('Auth header:', authHeader); // Log the Authorization header
+
+  const token = authHeader?.split(' ')[1];
+  console.log('Extracted token:', token); // Log the extracted token
   
   if (!token) {
     return res.status(401).json({ message: 'No token, authorization denied' });
   }
 
-  try {
+  // try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    console.log('decoded', decoded);
+    console.log('Decoded token:', decoded);
     
     req.user = decoded;
     next();
-  } catch (err) {
-    res.status(401).json({ message: 'Token is not valid' });
-  }
+  // } catch (err) {
+    // console.error('Token verification error:', err);
+    // res.status(401).json({ message: 'Token is not valid' });
+  // }
 };

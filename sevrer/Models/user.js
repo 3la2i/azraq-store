@@ -15,7 +15,8 @@ const userSchema = new mongoose.Schema({
   },
   phoneNumber: String,
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
+  isActive: { type: Boolean, default: true },
 });
 
 userSchema.pre('save', async function(next) {
@@ -24,6 +25,48 @@ userSchema.pre('save', async function(next) {
   }
   next();
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
