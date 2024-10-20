@@ -1,16 +1,33 @@
 // controllers/productController.js
 const Product = require('../Models/product');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 // Create a new product
-exports.createProduct = async (req, res) => {
-  try {
-    const newProduct = new Product(req.body);
-    const savedProduct = await newProduct.save();
-    res.status(201).json(savedProduct);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+exports.createProduct = [
+  upload.single('image'),
+  async (req, res) => {
+    try {
+      const productData = {
+        name: req.body.name,
+        description: req.body.description,
+        price: parseFloat(req.body.price),
+        category: req.body.category,
+        restaurant: req.body.restaurant,
+      };
+
+      if (req.file) {
+        productData.image = req.file.path;
+      }
+
+      const product = new Product(productData);
+      await product.save();
+      res.status(201).json(product);
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
   }
-};
+];
 
 // Get all products
 exports.getAllProducts = async (req, res) => {

@@ -3,19 +3,15 @@ const { Schema } = mongoose;
 
 const restaurantSchema = new Schema({
   name: { type: String, required: true },
-  description: String,
-  image: String,
+  description: { type: String, required: true },
+  image: { type: String },
   address: {
-    street: String,
-    neiborhood: String,
-    state: String,
-    zipCode: String,
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    zipCode: { type: String, required: true },
   },
-  location: {
-    type: { type: String, default: "Point" },
-    coordinates: [Number],
-  },
-  cuisine: [String],
+  cuisine: [{ type: String }],
   rating: { type: Number, default: 0 },
   openingHours: {
     monday: { open: String, close: String },
@@ -26,9 +22,6 @@ const restaurantSchema = new Schema({
     saturday: { open: String, close: String },
     sunday: { open: String, close: String },
   },
-  owner: { type: Schema.Types.ObjectId, ref: "User" },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
 });
 
 const Restaurant = mongoose.model("Restaurant", restaurantSchema);

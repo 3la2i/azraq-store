@@ -6,9 +6,11 @@ const orderSchema = new Schema({
     items: [{
         product: { type: Schema.Types.ObjectId, ref: 'Product' },
         quantity: Number,
-        price: Number
+        price: Number,
+        status: { type: String, enum: ['pending', 'preparing', 'ready', 'delivered'], default: 'pending' }
     }],
-    status: { type: String, enum: ['pending', 'preparing', 'on the way', 'delivered', 'cancelled'], default: 'pending' },
+    status: { type: String, enum: ['pending', 'accepted', 'preparing', 'ready', 'on the way', 'delivered', 'cancelled'], default: 'pending' },
+    restaurantStatus: { type: String, enum: ['pending', 'received', 'preparing', 'ready'], default: 'pending' },
     total: { type: Number, required: true },
     deliveryAddress: {
         street: String,
@@ -21,6 +23,7 @@ const orderSchema = new Schema({
     email: String,
     phone: String,
     driver: { type: Schema.Types.ObjectId, ref: 'User' },
+    restaurant: { type: Schema.Types.ObjectId, ref: 'Restaurant', required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

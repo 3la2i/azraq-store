@@ -58,6 +58,22 @@ const Cart = () => {
   };
 
   const submitOrder = async () => {
+    if (!cart || !cart.items || cart.items.length === 0) {
+      setError('Your cart is empty. Please add items before submitting an order.');
+      return;
+    }
+
+    const isValidCart = cart.items.every(item => item.product && item.quantity && item.price);
+    if (!isValidCart) {
+      setError('Invalid cart data. Please try refreshing the page.');
+      return;
+    }
+
+    if (!deliveryInfo.firstName || !deliveryInfo.lastName || !deliveryInfo.email || !deliveryInfo.address || !deliveryInfo.phone) {
+      setError('Please fill in all delivery information fields.');
+      return;
+    }
+
     try {
       const user = JSON.parse(localStorage.getItem('user'));
       const orderData = {
@@ -72,6 +88,7 @@ const Cart = () => {
         },
         ...deliveryInfo
       };
+      console.log('Submitting order data:', orderData);
 
       const response = await axios.post('http://localhost:5000/api/orders/createOrder', orderData);
       console.log('Order submitted:', response.data);
@@ -79,7 +96,7 @@ const Cart = () => {
       setCart(null);
       alert('Order submitted successfully!');
     } catch (error) {
-      console.error('Error submitting order:', error);
+      console.error('Error submitting order:', error.response?.data || error.message);
       setError('Failed to submit order. Please try again later.');
     }
   };

@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors'); // Import cors
+const multer = require('multer');
+const path = require('path');
 const productRoutes = require('./Routes/productRoutes');
 const restaurantRoutes = require('./Routes/restaurantRoutes');
 const categoryRoutes = require('./Routes/categoryRoutes');
@@ -11,6 +13,8 @@ const cartRoutes = require('./Routes/cartRoutes');
 const profileRoutes = require('./Routes/profileRoutes');
 const orderRoutes = require('./Routes/orderRoutes');
 const userRoutes = require('./Routes/userRoutes');
+
+
 
 
 const app = express();
@@ -29,12 +33,26 @@ app.use(express.json());
 // Use CORS middleware
 app.use(cors()); // Enable CORS for all routes
 
+// Set up Multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname))
+  }
+})
+
+const upload = multer({ storage: storage })
+
 // Use product routes
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api', userRoutes);
+
+
 // Use restaurant routes
 
 app.use('/api/restaurants', restaurantRoutes);

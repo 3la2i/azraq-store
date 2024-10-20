@@ -1,15 +1,30 @@
 const Restaurant = require('../Models/restaurant');
 const Product = require('../Models/product');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+
 // Create a new restaurant
-exports.createRestaurant = async (req, res) => {
-  try {
-    const restaurant = new Restaurant(req.body);
-    await restaurant.save();
-    res.status(201).json(restaurant);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+exports.createRestaurant = 
+  // upload.single('image'),
+  async (req, res) => {
+    try {
+      const restaurantData = {
+        ...req.body,
+        address: JSON.parse(req.body.address),
+        openingHours: JSON.parse(req.body.openingHours),
+        cuisine: JSON.parse(req.body.cuisine),
+      };
+      if (req.file) {
+        restaurantData.image = req.file.path;
+      }
+      const restaurant = new Restaurant(restaurantData);
+      await restaurant.save();
+      res.status(201).json(restaurant);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
   }
-};
+;
 
 // Get all restaurants
 exports.getAllRestaurants = async (req, res) => {

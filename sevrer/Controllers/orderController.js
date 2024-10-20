@@ -1,46 +1,51 @@
 // controllers/orderController.js
 const Cart = require('../Models/Cart');
 const Order = require("../Models/order")
+const Product = require('../Models/product');
 console.log(Order,"the models");
 exports.createOrder = async (req, res) => {
-    try {
-        const { userId, items, total, deliveryAddress, firstName, lastName, email, phone } = req.body;
+  try {
+    console.log('Received order data:', req.body);
+    const { userId, items, total, deliveryAddress, firstName, lastName, email, phone } = req.body;
 
-        console.log("Request body:", req.body); // Add logging
-
-        // Validate the required fields
-        if (!userId || !items || !total || !deliveryAddress || !firstName || !lastName || !email || !phone) {
-            return res.status(400).json({ message: 'All fields are required' });
-        }
-
-        const newOrder = new Order({
-            user: userId,
-            items: items.map(item => ({
-                product: item.product._id,
-                quantity: item.quantity,
-                price: item.price
-            })),
-            total,
-            deliveryAddress,
-            firstName,
-            lastName,
-            email,
-            phone
-        });
-
-        await newOrder.save();
-
-        // Clear the user's cart
-        const updatedCart = await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [] } });
-        if (!updatedCart) {
-            throw new Error('Failed to clear the cart');
-        }
-
-        res.status(201).json({ message: 'Order created successfully', order: newOrder });
-    } catch (error) {
-        console.error('Error creating order:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+    if (!userId || !items || !Array.isArray(items) || items.length === 0 || !total || !deliveryAddress || !firstName || !lastName || !email || !phone) {
+      console.log('Validation failed:', { userId, items, total, deliveryAddress, firstName, lastName, email, phone });
+      return res.status(400).json({ message: 'All fields are required and items must be a non-empty array' });
     }
+
+    const firstProduct = items[0]?.product ? await Product.findById(items[0].product).populate('restaurant') : null;
+    if (!firstProduct || !firstProduct.restaurant) {
+      console.log('Invalid product or restaurant:', firstProduct);
+      return res.status(400).json({ message: 'Invalid product or restaurant' });
+    }
+
+    const newOrder = new Order({
+      user: userId,
+      items: items.map(item => ({
+        product: item.product,
+        quantity: item.quantity,
+        price: item.price,
+        status: 'pending'
+      })),
+      total,
+      deliveryAddress,
+      firstName,
+      lastName,
+      email,
+      phone,
+      restaurant: firstProduct.restaurant._id
+    });
+
+    await newOrder.save();
+
+    // Clear the user's cart
+    await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [] } });
+
+    res.status(201).json({ message: 'Order created successfully', order: newOrder });
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).json({ message: 'Server error', error: error.message, stack: error.stack });
+  }
 };
 exports.getOrders = async (req, res) => {
     try {
@@ -151,6 +156,73 @@ exports.getUserOrders = async (req, res) => {
   } catch (error) {
     console.error('Error fetching user orders:', error.message);
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+
+exports.updateOrderStatus = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { status } = req.body;
+
+        const order = await Order.findByIdAndUpdate(
+            orderId,
+            { $set: { status: status } },
+            { new: true }
+        );
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        res.json(order);
+    } catch (error) {
+        console.error('Error updating order status:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.updateProductStatus = async (req, res) => {
+    try {
+        const { orderId, productId } = req.params;
+        const { status } = req.body;
+
+        const order = await Order.findOneAndUpdate(
+            { _id: orderId, 'items.product': productId },
+            { $set: { 'items.$.status': status } },
+            { new: true }
+        );
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order or product not found' });
+        }
+
+        res.json(order);
+    } catch (error) {
+        console.error('Error updating product status:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+exports.getRestaurantOrders = async (req, res) => {
+  try {
+    const restaurantId = req.user.restaurantId; // Assuming you have middleware that sets the user and their associated restaurant
+    const orders = await Order.find({ restaurant: restaurantId })
+      .populate({
+        path: 'items.product',
+        select: 'name price',
+        populate: {
+          path: 'restaurant',
+          select: 'name'
+        }
+      })
+      .sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching restaurant orders:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 

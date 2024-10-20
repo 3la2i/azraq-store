@@ -21,4 +21,8 @@ router.get('/getOrders', auth, orderController.getOrders);
 // Route to get user's orders
 router.get('/user', auth, orderController.getUserOrders);
 
+router.get('/restaurant', auth, orderController.getRestaurantOrders);
+router.put('/:orderId/status', auth, orderController.updateOrderStatus);
+router.put('/:orderId/product/:productId/status', auth, orderController.updateProductStatus);
+
 module.exports = router;
