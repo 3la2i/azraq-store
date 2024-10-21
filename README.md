@@ -39,3 +39,6 @@ Enhancing UI/UX with more animations and responsive design.
 
 presntation:
 https://www.slidespilot.com/s/p/GynVWP3aMJ
+
+trello
+https://trello.com/b/sr6HO2jX/sahttieneats
