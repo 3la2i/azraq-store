@@ -25,6 +25,7 @@ const Cart = () => {
     phone: ''
   });
   const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [restaurantName, setRestaurantName] = useState('');
 
   const fetchCart = async () => {
     try {
@@ -32,6 +33,12 @@ const Cart = () => {
       const user = JSON.parse(localStorage.getItem('user'));
       const response = await axios.get(`http://localhost:5000/api/cart/${user._id}`);
       setCart(response.data);
+      if (response.data.restaurant && typeof response.data.restaurant === 'string') {
+        const restaurantResponse = await axios.get(`http://localhost:5000/api/restaurants/${response.data.restaurant}`);
+        setRestaurantName(restaurantResponse.data.name);
+      } else if (response.data.restaurant && response.data.restaurant.name) {
+        setRestaurantName(response.data.restaurant.name);
+      }
       setLoading(false);
     } catch (error) {
       console.error('Error fetching cart:', error);
@@ -154,6 +161,7 @@ const Cart = () => {
       <div className="flex flex-col md:flex-row">
         <div className="w-full md:w-1/2 p-4">
           <h2 className="text-xl font-semibold mb-4">Cart Items</h2>
+          {restaurantName && <p className="mb-4">restaurant name : {restaurantName}</p>}
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b">

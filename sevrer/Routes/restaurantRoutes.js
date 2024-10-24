@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const restaurantController = require('../Controllers/restaurantController');
+const restaurantController = require('../controllers/restaurantController');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 // Define routes for CRUD operations
@@ -10,6 +10,6 @@ router.get('/getRestaurantById/:id', restaurantController.getRestaurantById);   
 router.put('/:id', restaurantController.updateRestaurant);      // Update a restaurant by ID
 router.delete('/:id', restaurantController.deleteRestaurant);   // Delete a restaurant by ID
 router.get('/:id/products', restaurantController.getRestaurantWithProducts);
-
+router.get('/:id', restaurantController.getRestaurant);
 
 module.exports = router;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingBag, DollarSign, Clock, ArrowLeft } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const ProductDetails = () => {
   const [product, setProduct] = useState(null);
@@ -28,20 +29,48 @@ const ProductDetails = () => {
   }, [id]);
 
   const addToCart = async () => {
-    const user = JSON.parse(localStorage.getItem('user')) 
-    console.log('user:::', user)
+    const user = JSON.parse(localStorage.getItem('user'));
     try {
-    
-       await axios.post(`http://localhost:5000/api/cart/add`, {
-        userId: user._id, // Replace with actual user ID from your authentication system
+      const cartResponse = await axios.get(`http://localhost:5000/api/cart/${user._id}`);
+      const cartRestaurant = cartResponse.data.restaurant;
+
+      if (cartRestaurant && cartRestaurant !== product.restaurant._id) {
+        const result = await Swal.fire({
+          title: 'Different Restaurant',
+          text: 'Your cart contains items from a different restaurant. Do you want to clear your cart and add this item?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, clear it!',
+          cancelButtonText: 'No, keep it'
+        });
+
+        if (!result.isConfirmed) {
+          return;
+        }
+
+        await axios.post(`http://localhost:5000/api/cart/${user._id}/clear`);
+      }
+
+      await axios.post(`http://localhost:5000/api/cart/add`, {
+        userId: user._id,
         productId: product._id,
         quantity: 1
       });
-      alert('Product added to cart!');
-      // Optionally, you can update the UI or redirect to the cart page
+
+      Swal.fire({
+        title: 'Success!',
+        text: 'Product added to cart!',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
     } catch (error) {
       console.error('Error adding product to cart:', error);
-      alert('Failed to add product to cart. Please try again.');
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to add product to cart.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     }
   };
 
