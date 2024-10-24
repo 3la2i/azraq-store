@@ -51,6 +51,7 @@ const DriverOrdersPage = () => {
               <p><strong>Order ID:</strong> {order._id}</p>
               <p><strong>Total:</strong> ${order.total.toFixed(2)}</p>
               <p><strong>Status:</strong> {order.status}</p>
+              <p><strong>Payment Method:</strong> {order.paymentMethod === 'cash' ? 'Cash on Delivery' : 'PayPal'}</p>
               <p><strong>Customer Name:</strong> {order.firstName} {order.lastName}</p>
               <p><strong>Delivery Address:</strong> {order.deliveryAddress.street}, {order.deliveryAddress.city}</p>
               <details>

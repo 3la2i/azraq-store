@@ -13,27 +13,17 @@ const paymentSchema = new Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['credit_card', 'debit_card', 'paypal', 'bank_transfer'],
+    enum: ['cash', 'paypal'],
     required: true
   },
   paymentDetails: {
-    // For credit/debit card
-    cardType: String,
-    last4: String,
-    expirationMonth: Number,
-    expirationYear: Number,
     // For PayPal
-    paypalEmail: String,
-    // For bank transfer
-    bankName: String,
-    accountLast4: String
+    paypalOrderId: String,
+    paypalPayerId: String
   },
-  transactionId: { type: String, unique: true },
-  refundId: String,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
-
 
 const Payment = mongoose.model('Payment', paymentSchema);
 

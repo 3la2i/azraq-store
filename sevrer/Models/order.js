@@ -25,7 +25,12 @@ const orderSchema = new Schema({
     driver: { type: Schema.Types.ObjectId, ref: 'User' },
     restaurant: { type: Schema.Types.ObjectId, ref: 'Restaurant', required: true },
     createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: Date.now },
+    paymentMethod: { 
+        type: String, 
+        enum: ['cash', 'paypal'], 
+        required: true 
+    }
 });
 
 const Order = mongoose.model('Order', orderSchema);

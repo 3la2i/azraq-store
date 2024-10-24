@@ -1,15 +1,18 @@
 // controllers/orderController.js
 const Cart = require('../Models/Cart');
 const Order = require("../Models/order")
+const Payment = require("../Models/payment");
 const Product = require('../Models/product');
 console.log(Order,"the models");
 exports.createOrder = async (req, res) => {
   try {
     console.log('Received order data:', req.body);
-    const { userId, items, total, deliveryAddress, firstName, lastName, email, phone } = req.body;
+    const { userId, items, total, deliveryAddress, firstName, lastName, email, phone, paymentMethod, paymentDetails } = req.body;
 
-    if (!userId || !items || !Array.isArray(items) || items.length === 0 || !total || !deliveryAddress || !firstName || !lastName || !email || !phone) {
-      console.log('Validation failed:', { userId, items, total, deliveryAddress, firstName, lastName, email, phone });
+    console.log('Payment method:', paymentMethod); // For debugging
+
+    if (!userId || !items || !Array.isArray(items) || items.length === 0 || !total || !deliveryAddress || !firstName || !lastName || !email || !phone || !paymentMethod) {
+      console.log('Validation failed:', { userId, items, total, deliveryAddress, firstName, lastName, email, phone, paymentMethod });
       return res.status(400).json({ message: 'All fields are required and items must be a non-empty array' });
     }
 
@@ -33,15 +36,28 @@ exports.createOrder = async (req, res) => {
       lastName,
       email,
       phone,
-      restaurant: firstProduct.restaurant._id
+      restaurant: firstProduct.restaurant._id,
+      paymentMethod
     });
 
     await newOrder.save();
 
+    // Create payment record
+    const newPayment = new Payment({
+      user: userId,
+      order: newOrder._id,
+      amount: total,
+      paymentMethod,
+      status: paymentMethod === 'paypal' ? 'completed' : 'pending',
+      paymentDetails: paymentMethod === 'paypal' ? paymentDetails : {}
+    });
+
+    await newPayment.save();
+
     // Clear the user's cart
     await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [] } });
 
-    res.status(201).json({ message: 'Order created successfully', order: newOrder });
+    res.status(201).json({ message: 'Order created successfully', order: newOrder, payment: newPayment });
   } catch (error) {
     console.error('Error creating order:', error);
     res.status(500).json({ message: 'Server error', error: error.message, stack: error.stack });
@@ -70,6 +86,7 @@ exports.getAvailableOrders = async (req, res) => {
           select: 'name address phoneNumber'
         }
       })
+      .select('_id total status firstName lastName deliveryAddress items paymentMethod') // Add paymentMethod here
       .sort({ createdAt: -1 });
 
     res.json(orders);
@@ -225,5 +242,9 @@ exports.getRestaurantOrders = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+
+
 
 

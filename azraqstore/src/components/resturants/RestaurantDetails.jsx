@@ -92,6 +92,7 @@ const RestaurantDetails = () => {
         <div className="p-6">
           <h2 className="text-2xl font-semibold mb-4 flex items-center">
             <ShoppingBag className="mr-2" size={24} />
+            
             قائمة الطعام
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -112,6 +113,7 @@ const RestaurantDetails = () => {
               </div>
             ))}
           </div>
+
         </div>
       </div>
     </div>
