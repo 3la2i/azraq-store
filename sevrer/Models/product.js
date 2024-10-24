@@ -8,6 +8,7 @@ const productSchema = new mongoose.Schema({
   image: { type: String },
   category: { type: String, required: true },
   restaurant: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true },
+  
 });
 
 module.exports = mongoose.model('Product', productSchema);

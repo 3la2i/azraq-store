@@ -63,6 +63,7 @@ app.get('/', (req, res) => {
   res.send('Hello, world!');
 });
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

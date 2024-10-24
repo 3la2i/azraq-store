@@ -55,7 +55,7 @@ const Drivers = () => {
             <th className="py-2 px-4 border-b">Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody> 
           {drivers.map(driver => (
             <tr key={driver._id}>
               <td className="py-2 px-4 border-b">{driver.name}</td>

@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 const RestaurantCard = ({ restaurant, onClick }) => (
   <div className="w-full bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105" onClick={onClick}>
     <div className="relative h-48">
-      <img className="w-full h-full object-cover" src={restaurant.image} alt={restaurant.name} />
+      {console.log("http://localhost:5000/" + restaurant.image)}
+      <img className="w-full h-full object-cover" src={`http://localhost:5000/${restaurant.image}`} alt={restaurant.name} />
       <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 flex items-center">
         <Star className="text-yellow-400 mr-1" size={16} />
         <span className="text-sm font-medium">{restaurant.rating.toFixed(1)}</span>

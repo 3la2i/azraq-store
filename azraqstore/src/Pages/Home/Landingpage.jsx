@@ -5,7 +5,7 @@ import heawder from './Home'
 const RestaurantCard = ({ restaurant, onClick }) => (
   <div className="w-full bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105" onClick={onClick}>
     <div className="relative h-48">
-      <img className="w-full h-full object-cover" src={restaurant.image} alt={restaurant.name} />
+      <img className="w-full h-full object-cover" src={`http://localhost:5000/${restaurant.image}`} alt={restaurant.name} />
       <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 flex items-center">
         <Star className="text-yellow-400 mr-1" size={16} />
         <span className="text-sm font-medium">{restaurant.rating.toFixed(1)}</span>
@@ -25,7 +25,7 @@ const RestaurantCard = ({ restaurant, onClick }) => (
 
 const ProductCard = ({ product, onClick }) => (
   <div className="bg-white rounded-lg shadow-md p-4 cursor-pointer transition-transform hover:scale-105" onClick={onClick}>
-    <img src={product.image} alt={product.name} className="w-full h-48 object-cover rounded-md mb-4" />
+    <img src={`http://localhost:5000/${product.image}`} alt={product.name} className="w-full h-48 object-cover rounded-md mb-4" />
     <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
     <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.description}</p>
     <div className="flex justify-between items-center">
@@ -197,7 +197,7 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="md:w-1/2">
-            <img src="/placeholder.svg" alt="Food delivery illustration" className="rounded-lg shadow-lg" />
+            <img src="https://img.freepik.com/free-photo/top-view-fast-food-mix-mozzarella-sticks-club-sandwich-hamburger-mushroom-pizza-caesar-shrimp-salad-french-fries-ketchup-mayo-cheese-sauces-table_141793-3998.jpg" alt="Food delivery illustration" className="rounded-lg shadow-lg" />
           </div>
         </div>
       </section>

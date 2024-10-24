@@ -41,7 +41,7 @@ const RestaurantDetails = () => {
       {/* Restaurant Details Section */}
       <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
         <div className="relative h-[600px]">
-          <img className="w-full h-full object-cover" src={restaurant.image} alt={restaurant.name} />
+          <img className="w-full h-full object-cover" src={`http://localhost:5000/${restaurant.image}`} alt={restaurant.name} />
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
             <h1 className="text-3xl font-bold text-white">{restaurant.name}</h1>
           </div>

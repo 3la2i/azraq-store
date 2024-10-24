@@ -66,6 +66,7 @@ const ProductForm = ({ onSubmit, initialData, onCancel, restaurants = [] }) => {
         <label htmlFor="restaurant">Restaurant</label>
         <select id="restaurant" name="restaurant" value={formData.restaurant} onChange={handleChange} required>
           <option value="">Select a restaurant</option>
+          {console.log(restaurants,'fwajbfwkad')}
           {restaurants.map((restaurant) => (
             <option key={restaurant._id} value={restaurant._id}>{restaurant.name}</option>
           ))}
