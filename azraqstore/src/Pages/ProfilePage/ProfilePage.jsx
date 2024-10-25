@@ -1,279 +1,296 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { User, MapPin, Mail, Phone, Calendar, Clock, Edit2, Package, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import { User, MapPin, Mail, Phone, Calendar, Clock, Edit2, Package, ChevronDown, ChevronUp } from 'lucide-react'
 
 const ProfilePage = () => {
-  const [user, setUser] = useState(null);
-  const [orders, setOrders] = useState([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [expandedOrder, setExpandedOrder] = useState(null);
+  const [user, setUser] = useState(null)
+  const [orders, setOrders] = useState([])
+  const [isEditing, setIsEditing] = useState(false)
+  const [expandedOrder, setExpandedOrder] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phoneNumber: '',
     location: '',
-  });
+  })
 
   useEffect(() => {
-    fetchUserProfile();
-    fetchUserOrders();
-  }, []);
+    fetchUserProfile()
+    fetchUserOrders()
+  }, [])
 
   const fetchUserProfile = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token')
       const response = await axios.get('http://localhost:5000/api/profile/get', {
         headers: { Authorization: `Bearer ${token}` }
-      });
-      setUser(response.data);
+      })
+      setUser(response.data)
       setFormData({
         ...response.data,
         location: `${response.data.location.coordinates[0]}, ${response.data.location.coordinates[1]}`
-      });
+      })
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Error fetching profile:', error)
     }
-  };
+  }
 
   const fetchUserOrders = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token')
       const response = await axios.get('http://localhost:5000/api/orders/user', {
-        
         headers: { Authorization: `Bearer ${token}` }
-      });
-      console.log("response.data",response.data,"the response data")
-      setOrders(response.data);
+      })
+      setOrders(response.data)
     } catch (error) {
-      console.error('Error fetching user orders:', error);
+      console.error('Error fetching user orders:', error)
     }
-  };
+  }
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData(prevState => ({
       ...prevState,
       [name]: value
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
-      const token = localStorage.getItem('token');
-      const [longitude, latitude] = formData.location.split(',').map(coord => parseFloat(coord.trim()));
+      const token = localStorage.getItem('token')
+      const [longitude, latitude] = formData.location.split(',').map(coord => parseFloat(coord.trim()))
       const updatedFormData = {
         ...formData,
         location: { coordinates: [longitude, latitude] }
-      };
+      }
       const response = await axios.put('http://localhost:5000/api/profile/update', updatedFormData, {
         headers: { Authorization: `Bearer ${token}` }
-      });
-      setUser(response.data);
-      setIsEditing(false);
+      })
+      setUser(response.data)
+      setIsEditing(false)
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('Error updating profile:', error)
     }
-  };
+  }
 
   const toggleOrderExpansion = (orderId) => {
-    setExpandedOrder(expandedOrder === orderId ? null : orderId);
-  };
+    setExpandedOrder(expandedOrder === orderId ? null : orderId)
+  }
 
-  if (!user) return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  if (!user) return (
+    <div className="flex justify-center items-center h-screen bg-red-50">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-red-600"></div>
+    </div>
+  )
 
   return (
-    <div className="container mx-auto p-4 max-w-3xl">
-      {/* User Profile Section */}
-      <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
-        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">User Profile</h1>
-          {!isEditing && (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="text-blue-600 hover:text-blue-800 transition-colors"
-              aria-label="Edit profile"
-            >
-              <Edit2 className="h-5 w-5" />
-            </button>
-          )}
-        </div>
-        <div className="px-6 py-4">
-          {isEditing ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                />
+    <div className="min-h-screen bg-red-50 py-12">
+      <div className="container mx-auto px-4">
+        <h1 className="text-4xl font-bold text-red-600 mb-8 text-center">Your Profile</h1>
+        
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* User Profile Section */}
+          <div className="lg:w-1/2">
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <div className="px-6 py-4 bg-red-600 text-white flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Personal Information</h2>
+                {!isEditing && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="text-white hover:text-red-200 transition-colors"
+                    aria-label="Edit profile"
+                  >
+                    <Edit2 className="h-6 w-6" />
+                  </button>
+                )}
               </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
-                <input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  type="tel"
-                  value={formData.phoneNumber}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                  Location (Longitude, Latitude)
-                </label>
-                <input
-                  id="location"
-                  name="location"
-                  type="text"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  placeholder="e.g. -73.935242, 40.730610"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                  Save Changes
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="space-y-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center text-2xl font-bold text-gray-600">
-                  {user.name.charAt(0)}
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800">{user.name}</h2>
-                  <p className="text-sm text-gray-600">{user.role}</p>
-                </div>
-              </div>
-              <div className="grid gap-4">
-                <div className="flex items-center space-x-4">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-700">{user.email}</span>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Phone className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-700">{user.phoneNumber}</span>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <MapPin className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-700">
-                    Longitude: {user.location.coordinates[0]}, 
-                    Latitude: {user.location.coordinates[1]}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Calendar className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-700">Created: {new Date(user.createdAt).toLocaleString()}</span>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Clock className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-700">Last Updated: {new Date(user.updatedAt).toLocaleString()}</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Orders Section */}
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800">Your Orders</h2>
-        </div>
-        <div className="px-6 py-4">
-          {orders.length > 0 ? (
-            <ul className="divide-y divide-gray-200">
-              {orders.map((order) => (
-                <li key={order._id} className="py-4">
-                  <div className="flex items-center space-x-4 cursor-pointer" onClick={() => toggleOrderExpansion(order._id)}>
-                    <Package className="h-6 w-6 text-gray-400" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        Order ID: {order._id}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Status: {order.status}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Total: ${order.total.toFixed(2)}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Date: {new Date(order.createdAt).toLocaleDateString()}
-                      </p>
+              <div className="px-6 py-6">
+                {isEditing ? (
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                        Name
+                      </label>
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      />
                     </div>
-                    {expandedOrder === order._id ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
-                  </div>
-                  {expandedOrder === order._id && (
-                    <div className="mt-4 pl-10">
-                      <h3 className="text-lg font-semibold mb-2">Order Details</h3>
-                      {order.items.map((item, index) => (
-                      
-                        <div key={index} className="mb-4 bg-gray-50 p-4 rounded-md">
-                          <h4 className="font-semibold">{item.product.name}</h4>
-                          <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                          <p className="text-sm text-gray-600">Price: ${item.price.toFixed(2)}</p>
-                          <p className="text-sm text-gray-600">Subtotal: ${(item.quantity * item.price).toFixed(2)}</p>
-                          
-                        </div>
-
-
-                        
-                      ))}
-                      <div className="mt-4">
-                        <h3 className="text-lg font-semibold mb-2">Delivery Information</h3>
-                        <p className="text-sm text-gray-600">Name: {order.firstName} {order.lastName}</p>
-                        <p className="text-sm text-gray-600">Email: {order.email}</p>
-                        <p className="text-sm text-gray-600">Phone: {order.phone}</p>
-                        <p className="text-sm text-gray-600">Address: {order.deliveryAddress.street}</p>
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                        Email
+                      </label>
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number
+                      </label>
+                      <input
+                        id="phoneNumber"
+                        name="phoneNumber"
+                        type="tel"
+                        value={formData.phoneNumber}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
+                        Location (Longitude, Latitude)
+                      </label>
+                      <input
+                        id="location"
+                        name="location"
+                        type="text"
+                        value={formData.location}
+                        onChange={handleInputChange}
+                        placeholder="e.g. -73.935242, 40.730610"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      />
+                    </div>
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        type="submit"
+                        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                      >
+                        Save Changes
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditing(false)}
+                        className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center text-2xl font-bold text-red-600">
+                        {user.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-800">{user.name}</h2>
+                        <p className="text-sm text-gray-600">{user.role}</p>
                       </div>
                     </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">You haven't placed any orders yet.</p>
-          )}
+                    <div className="grid gap-4">
+                      <div className="flex items-center space-x-4">
+                        <Mail className="h-5 w-5 text-red-500" />
+                        <span className="text-gray-700">{user.email}</span>
+                      </div>
+                      <div className="flex items-center space-x-4">
+                        <Phone className="h-5 w-5 text-red-500" />
+                        <span className="text-gray-700">{user.phoneNumber}</span>
+                      </div>
+                      <div className="flex items-center space-x-4">
+                        <MapPin className="h-5 w-5 text-red-500" />
+                        <span className="text-gray-700">
+                          Longitude: {user.location.coordinates[0]}, 
+                          Latitude: {user.location.coordinates[1]}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-4">
+                        <Calendar className="h-5 w-5 text-red-500" />
+                        <span className="text-gray-700">Created: {new Date(user.createdAt).toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center space-x-4">
+                        <Clock className="h-5 w-5 text-red-500" />
+                        <span className="text-gray-700">Last Updated: {new Date(user.updatedAt).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Orders Section */}
+          <div className="lg:w-1/2">
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <div className="px-6 py-4 bg-red-600 text-white">
+                <h2 className="text-2xl font-bold">Your Orders</h2>
+              </div>
+              <div className="px-6 py-6">
+                {orders.length > 0 ? (
+                  <ul className="divide-y divide-gray-200">
+                    {orders.map((order) => (
+                      <li key={order._id} className="py-6">
+                        <div 
+                          className="flex items-center space-x-4 cursor-pointer" 
+                          onClick={() => toggleOrderExpansion(order._id)}
+                        >
+                          <Package className="h-6 w-6 text-red-500 flex-shrink-0" />
+                          <div className="flex-grow min-w-0">
+                            <p className="text-lg font-semibold text-gray-900 truncate">
+                              Order ID: {order._id}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Status: <span className="font-medium text-red-600">{order.status}</span>
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Total: <span className="font-medium">${order.total.toFixed(2)}</span>
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Date: {new Date(order.createdAt).toLocaleDateString()}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Restaurant: click to view more {order.restaurant ? order.restaurant.name : 'N/A'}
+                            </p>
+                          </div>
+                          {expandedOrder === order._id ? (
+                            <ChevronUp className="h-5 w-5 text-red-500 flex-shrink-0" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-red-500 flex-shrink-0" />
+                          )}
+                        </div>
+                        {expandedOrder === order._id && (
+                          <div className="mt-4 pl-10">
+                            <h3 className="text-xl font-semibold mb-4 text-red-600">Order Details</h3>
+                            {order.items.map((item, index) => (
+                              <div key={index} className="mb-4 bg-red-50 p-4 rounded-md">
+                                <h4 className="font-semibold text-lg">{item.product.name}</h4>
+                                <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                                <p className="text-sm text-gray-600">Price: ${item.price.toFixed(2)}</p>
+                                <p className="text-sm text-gray-600">Subtotal: ${(item.quantity * item.price).toFixed(2)}</p>
+                                {item.product.restaurant && (
+                                  <div className="mt-2">
+                                    <p className="text-sm text-gray-600">Restaurant: {item.product.restaurant.name}</p>
+                                    <p className="text-sm text-gray-600">Address: {item.product.restaurant.address.street}, {item.product.restaurant.address.city}</p>
+                                    <p className="text-sm text-gray-600">Phone: {item.product.restaurant.phoneNumber}</p>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500 text-center py-4">You haven't placed any orders yet.</p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProfilePage;
+export default ProfilePage

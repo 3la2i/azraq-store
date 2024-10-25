@@ -164,9 +164,10 @@ exports.getUserOrders = async (req, res) => {
         populate: {
           path: 'restaurant',
           model: 'Restaurant',
-          select: 'name address phoneNumber' // Select the fields you want to include
+          select: 'name address phoneNumber'
         }
       })
+      .populate('restaurant', 'name') // Add this line to populate the restaurant field
       .sort({ createdAt: -1 });
 
     res.status(200).json(orders);
