@@ -58,6 +58,7 @@ import Restaurants from "./Pages/Admin/Restaurants";
 import Products from "./Pages/Admin/Products";
 import Drivers from "./Pages/Admin/Drivers";
 import AllUsers from "./Pages/Admin/AllUsers";
+import RestaurantsPage from "./Pages/Restaurants/RestaurantsPage";
 
 const App = () => {
   const location = useLocation();
@@ -89,6 +90,7 @@ const App = () => {
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/driver" element={<DriverOrdersPage />} />
         <Route path="/guard" element={<DriverRouteGuard />} />
+        <Route path="/resturantpage" element={<RestaurantsPage />} />
       </Routes>
       {location.pathname !== "/admin" && <Footer />}
     </div>

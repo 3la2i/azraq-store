@@ -12,7 +12,8 @@ const restaurantSchema = new Schema({
     zipCode: { type: String, required: true },
   },
   cuisine: [{ type: String }],
-  rating: { type: Number, default: 0 },
+  rating: { type: Number, default: 0 }, // Ensure this field exists
+  category: { type: Schema.Types.ObjectId, ref: 'Category' },
   openingHours: {
     monday: { open: String, close: String },
     tuesday: { open: String, close: String },

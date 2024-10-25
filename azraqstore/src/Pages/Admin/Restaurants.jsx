@@ -1,17 +1,32 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import RestaurantForm from './components/RestaurantForm'
 import RestaurantList from './components/RestaurantList'
 import ProductForm from './components/ProductForm'
 import ProductList from './components/ProductList'
 import useRestaurants from './hooks/useRestaurants'
 import useProducts from './hooks/useProducts'
+import axios from 'axios'
 
 const Restaurants = () => {
+  const [categories, setCategories] = useState([])
   const [editingRestaurant, setEditingRestaurant] = useState(null)
   const [editingProduct, setEditingProduct] = useState(null)
   const [selectedRestaurant, setSelectedRestaurant] = useState(null)
   const { restaurants, createRestaurant, updateRestaurant, deleteRestaurant } = useRestaurants()
   const { products, createProduct, updateProduct, deleteProduct } = useProducts()
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/categories')
+        setCategories(response.data)
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      }
+    }
+
+    fetchCategories()
+  }, [])
 
   const handleEditRestaurant = (restaurant) => {
     setEditingRestaurant(restaurant)
@@ -49,6 +64,7 @@ const Restaurants = () => {
             onSubmit={editingRestaurant ? updateRestaurant : createRestaurant}
             initialData={editingRestaurant}
             onCancel={handleCancelEditRestaurant}
+            categories={categories}
           />
           <RestaurantList
             restaurants={restaurants}

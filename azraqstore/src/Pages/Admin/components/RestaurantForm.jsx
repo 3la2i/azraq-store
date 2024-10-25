@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 
-const RestaurantForm = ({ onSubmit, initialData, onCancel }) => {
+const RestaurantForm = ({ onSubmit, initialData, onCancel, categories }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -22,6 +22,8 @@ const RestaurantForm = ({ onSubmit, initialData, onCancel }) => {
       saturday: { open: '', close: '' },
       sunday: { open: '', close: '' },
     },
+    rating: 0, // Add rating to the form data
+    category: '',
   });
 
   useEffect(() => {
@@ -161,13 +163,46 @@ const RestaurantForm = ({ onSubmit, initialData, onCancel }) => {
           </div>
         ))}
       </div>
-      
+      <div>
+        <label htmlFor="rating" className="block text-gray-700">Rating</label>
+        <input
+          type="number"
+          id="rating"
+          name="rating"
+          value={formData.rating}
+          onChange={handleChange}
+          min="0"
+          max="5"
+          step="0.1"
+          required
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato"
+        />
+      </div>
+      <div>
+        <label htmlFor="category" className="block text-gray-700">Category</label>
+        <select
+          name="category"
+          value={formData.category || ''}
+          onChange={handleChange}
+          required
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato"
+        >
+          <option value="">Select a category</option>
+          {categories.map((category) => (
+            <option key={category._id} value={category._id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className="flex justify-between">
-        <button type="submit" className="bg-tomato text-white py-2 px-4 rounded-md hover:bg-red-600 transition">{initialData ? 'Update' : 'Create'} Restaurant</button>
+        <button type="submit" className="bg-tomato text-white py-2 px-4 rounded-md hover:bg-red-600 transition">
+          {initialData ? 'Update' : 'Create'} Restaurant
+        </button>
         {initialData && <button type="button" onClick={onCancel} className="text-gray-700 hover:text-tomato">Cancel</button>}
       </div>
     </form>
   );
-}
+};
 
 export default RestaurantForm;
