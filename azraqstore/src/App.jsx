@@ -82,17 +82,19 @@ const App = () => {
 
      
     
+        <Route path="/driver" element={<DriverOrdersPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/resturant" element={<RestaurantGrid />} />
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/driver" element={<DriverOrdersPage />} />
+       
         <Route path="/guard" element={<DriverRouteGuard />} />
         <Route path="/resturantpage" element={<RestaurantsPage />} />
       </Routes>
       {location.pathname !== "/admin" && <Footer />}
+      {location.pathname !== "/driver" && <Footer />}
     </div>
   );
 };

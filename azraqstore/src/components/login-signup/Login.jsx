@@ -54,6 +54,9 @@ const Login = () => {
 
       // Save token and user info as needed
       login(token, user);
+
+      console.log('user',user);
+      
       
       // Redirect based on user role
       if (user.role === 'driver') {

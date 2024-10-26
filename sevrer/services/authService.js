@@ -13,24 +13,29 @@ const signup = async (name, email, password, role = 'customer') => {
 
   // Hash the password before saving
   const hashedPassword = await bcrypt.hash(password, 10);
-
+  console.log({hashed: hashedPassword, plain: password});
+  
   const user = new User({ name, email, password: hashedPassword, role });
+
   await user.save();
-
+  
   const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
-
+  
   return { user, token };
 };
 
 const login = async (email, password) => {
+  
+  
   const user = await User.findOne({ email });
   if (!user) {
-    throw new Error('Invalid login credentials');
+    throw new Error('Invalid login credentials first');
   }
+  // console.log({hashed: user.password, plain: password});
 
   const isPasswordMatch = await bcrypt.compare(password, user.password);
   if (!isPasswordMatch) {
-    throw new Error('Invalid login credentials');
+    throw new Error('Invalid login credentials second');
   }
 
   const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
