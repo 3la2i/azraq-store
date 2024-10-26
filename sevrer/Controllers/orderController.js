@@ -98,27 +98,10 @@ exports.getAvailableOrders = async (req, res) => {
 // In your orderController.js
 
 exports.acceptOrder = async (req, res) => {
-  // console.log("user",req.user,"the user")
-  // try {
-  //   const order = await Order.findByIdAndUpdate(
-  //     req.params.orderId,
-  //     { $set: { status: 'preparing', driver: req.user.id } },
-      
-  //     { new: true }
-  //   );
-  //   if (!order) {
-  //     return res.status(404).json({ message: 'Order not found' });
-  //   }
-  //   res.json(order);
-  // } catch (error) {
-  //   console.error('Error accepting order:', error);
-  //   res.status(500).json({ message: 'Server error' });
-  // }
-
   try {
     const order = await Order.findByIdAndUpdate(
       req.params.orderId,
-      { $set: { status: 'preparing' } },
+      { $set: { status: 'accepted', driver: req.user.id } },
       { new: true }
     );
     if (!order) {
@@ -126,17 +109,16 @@ exports.acceptOrder = async (req, res) => {
     }
     res.json(order);
   } catch (error) {
-    console.error('Error rejecting order:', error);
+    console.error('Error accepting order:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-
-exports.rejectOrder = async (req, res) => {
+exports.startDelivery = async (req, res) => {
   try {
     const order = await Order.findByIdAndUpdate(
       req.params.orderId,
-      { $set: { status: 'cancelled' } },
+      { $set: { status: 'on the way' } },
       { new: true }
     );
     if (!order) {
@@ -144,7 +126,24 @@ exports.rejectOrder = async (req, res) => {
     }
     res.json(order);
   } catch (error) {
-    console.error('Error rejecting order:', error);
+    console.error('Error starting delivery:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.completeDelivery = async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(
+      req.params.orderId,
+      { $set: { status: 'delivered' } },
+      { new: true }
+    );
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    res.json(order);
+  } catch (error) {
+    console.error('Error completing delivery:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -243,6 +242,48 @@ exports.getRestaurantOrders = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Add these new controller methods
+
+exports.getDriverOrders = async (req, res) => {
+  console.log('getDriverOrders function called');
+  try {
+    const orders = await Order.find({ driver: req.user.id })
+      .populate({
+        path: 'items.product',
+        populate: {
+          path: 'restaurant',
+          model: 'Restaurant',
+          select: 'name address phoneNumber'
+        }
+      })
+      .select('_id total status firstName lastName deliveryAddress items paymentMethod')
+      .sort({ createdAt: -1 });
+
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching driver orders:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.rejectOrder = async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(
+      req.params.orderId,
+      { $set: { status: 'cancelled' } },
+      { new: true }
+    );
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    res.json(order);
+  } catch (error) {
+    console.error('Error rejecting order:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 
 
 

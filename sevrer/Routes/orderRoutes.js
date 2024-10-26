@@ -25,4 +25,13 @@ router.get('/restaurant', auth, orderController.getRestaurantOrders);
 router.put('/:orderId/status', auth, orderController.updateOrderStatus);
 router.put('/:orderId/product/:productId/status', auth, orderController.updateProductStatus);
 
+// Add these new routes
+router.get('/driver', auth, (req, res, next) => {
+  console.log('Driver route hit');
+  console.log('User:', req.user);
+  next();
+}, orderController.getDriverOrders);
+router.put('/:orderId/start_delivery', auth, orderController.startDelivery);
+router.put('/:orderId/complete', auth, orderController.completeDelivery);
+
 module.exports = router;
