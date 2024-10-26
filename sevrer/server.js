@@ -14,6 +14,8 @@ const profileRoutes = require('./Routes/profileRoutes');
 const orderRoutes = require('./Routes/orderRoutes');
 const userRoutes = require('./Routes/userRoutes');
 
+const dashboardRoutes = require('./Routes/dashboardRoutes');
+
 
 
 
@@ -52,6 +54,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api', userRoutes);
 
+app.use('/api/dashboard', dashboardRoutes);
 
 // Use restaurant routes
 

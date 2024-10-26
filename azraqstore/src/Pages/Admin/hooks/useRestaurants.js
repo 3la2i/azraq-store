@@ -35,15 +35,36 @@ const useRestaurants = () => {
 
   const updateRestaurant = async (restaurantData) => {
     try {
-      const id = restaurantData.get('_id')
-      const response = await axios.put(`http://localhost:5000/api/restaurants/${id}`, restaurantData, {
+      const id = restaurantData.get('_id');
+      console.log("Updating restaurant with ID:", id);
+
+      // Create a new FormData object
+      const formData = new FormData();
+
+      // Append each field to the formData
+      for (let [key, value] of restaurantData.entries()) {
+        if (key === 'address' || key === 'openingHours' || key === 'cuisine') {
+          // Parse and re-stringify these fields to ensure proper JSON format
+          formData.append(key, JSON.stringify(JSON.parse(value)));
+        } else if (key !== '_id') { // Don't append _id to formData
+          formData.append(key, value);
+        }
+      }
+
+      console.log("Restaurant data:", Object.fromEntries(formData));
+
+      const response = await axios.put(`http://localhost:5000/api/restaurants/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-      })
-      setRestaurants(restaurants.map(restaurant => restaurant._id === response.data._id ? response.data : restaurant))
+      });
+
+      console.log("Server response:", response.data);
+      setRestaurants(restaurants.map(restaurant => restaurant._id === response.data._id ? response.data : restaurant));
+      return response.data; // Return the updated restaurant
     } catch (error) {
-      console.error('Error updating restaurant:', error)
+      console.error('Error updating restaurant:', error.response?.data || error.message);
+      throw error; // Re-throw the error so it can be handled in the component
     }
   }
 

@@ -1,49 +1,71 @@
 import React from 'react'
+import { Edit2, Trash2, ChevronRight } from 'lucide-react'
 
 const RestaurantList = ({ restaurants, onEdit, onDelete, onSelect, selectedRestaurant }) => {
   return (
-    <div className="bg-white shadow-md rounded my-6">
-      <table className="min-w-full table-auto">
-        <thead>
-          <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">Name</th>
-            <th className="py-3 px-6 text-left">Description</th>
-            <th className="py-3 px-6 text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="text-gray-600 text-sm font-light">
-          {restaurants.map((restaurant) => (
-            <tr
-              key={restaurant._id}
-              className={`border-b border-gray-200 hover:bg-gray-100 ${
-                selectedRestaurant?._id === restaurant._id ? 'bg-blue-100' : ''
-              }`}
-              onClick={() => onSelect(restaurant)}
-            >
-              <td className="py-3 px-6 text-left whitespace-nowrap">
-                <span className="font-medium">{restaurant.name}</span>
-              </td>
-              <td className="py-3 px-6 text-left">
-                <span>{restaurant.description}</span>
-              </td>
-              <td className="py-3 px-6 text-center">
-                <div className="flex item-center justify-center">
-                  <button onClick={(e) => { e.stopPropagation(); onEdit(restaurant); }} className="w-4 mr-2 transform hover:text-purple-500 hover:scale-110">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </button>
-                  <button onClick={(e) => { e.stopPropagation(); onDelete(restaurant._id); }} className="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
-              </td>
+    <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-red-50">
+            <tr>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-red-600 uppercase tracking-wider">
+                Name
+              </th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-red-600 uppercase tracking-wider">
+                Description
+              </th>
+              <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-red-600 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {restaurants.map((restaurant) => (
+              <tr
+                key={restaurant._id}
+                className={`hover:bg-red-50 transition-colors duration-200 ${
+                  selectedRestaurant?._id === restaurant._id ? 'bg-red-100' : ''
+                }`}
+                onClick={() => onSelect(restaurant)}
+              >
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-10 w-10">
+                      <img className="h-10 w-10 rounded-full object-cover" src={`http://localhost:5000/${restaurant.image}`} alt={restaurant.name} />
+                    </div>
+                    <div className="ml-4">
+                      <div className="text-sm font-medium text-gray-900">{restaurant.name}</div>
+                      <div className="text-sm text-gray-500">{restaurant.cuisine.join(', ')}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="text-sm text-gray-900 line-clamp-2">{restaurant.description}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onEdit(restaurant); }}
+                    className="text-indigo-600 hover:text-indigo-900 mr-3"
+                  >
+                    <Edit2 className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDelete(restaurant._id); }}
+                    className="text-red-600 hover:text-red-900"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {restaurants.length === 0 && (
+        <div className="text-center py-8">
+          <p className="text-gray-500">No restaurants found.</p>
+        </div>
+      )}
     </div>
   )
 }

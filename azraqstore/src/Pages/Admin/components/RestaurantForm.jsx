@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
+import RestaurantList from './RestaurantList';
 
 const RestaurantForm = ({ onSubmit, initialData, onCancel, categories }) => {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ const RestaurantForm = ({ onSubmit, initialData, onCancel, categories }) => {
       saturday: { open: '', close: '' },
       sunday: { open: '', close: '' },
     },
-    rating: 0, // Add rating to the form data
+    rating: 0,
     category: '',
   });
 
@@ -99,72 +100,107 @@ const RestaurantForm = ({ onSubmit, initialData, onCancel, categories }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-lg shadow-md">
-      <div>
-        <label htmlFor="name" className="block text-gray-700">Name</label>
-        <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato" />
-      </div>
-      <div>
-        <label htmlFor="description" className="block text-gray-700">Description</label>
-        <textarea id="description" name="description" value={formData.description} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato" />
-      </div>
-      <div>
-        <label htmlFor="image" className="block text-gray-700">Image</label>
-        <input type="file" id="image" name="image" onChange={handleImageChange} accept="image/*" className="mt-1 block w-full border border-gray-300 rounded-md p-2" />
-      </div>
-      <div>
-        <h3 className="text-lg font-semibold">Address</h3>
+    <>
+    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold text-red-600 mb-6">{initialData ? 'Update' : 'Create'} Restaurant</h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="street" className="block text-gray-700">Street</label>
-          <input type="text" id="street" name="street" value={formData.address.street} onChange={handleAddressChange} required className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato" />
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Restaurant Name</label>
+          <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
         </div>
+        
         <div>
-          <label htmlFor="city" className="block text-gray-700">City</label>
-          <input type="text" id="city" name="city" value={formData.address.city} onChange={handleAddressChange} required className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato" />
-        </div>
-        <div>
-          <label htmlFor="state" className="block text-gray-700">State</label>
-          <input type="text" id="state" name="state" value={formData.address.state} onChange={handleAddressChange} required className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato" />
-        </div>
-        <div>
-          <label htmlFor="zipCode" className="block text-gray-700">Zip Code</label>
-          <input type="text" id="zipCode" name="zipCode" value={formData.address.zipCode} onChange={handleAddressChange} required className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato" />
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <select
+            name="category"
+            value={formData.category || ''}
+            onChange={handleChange}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            <option value="">Select a category</option>
+            {categories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
-      <div>
-        <label htmlFor="cuisine" className="block text-gray-700">Cuisine (comma-separated)</label>
-        <input type="text" id="cuisine" name="cuisine" value={formData.cuisine.join(', ')} onChange={handleCuisineChange} className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato" />
+
+      <div className="mt-6">
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <textarea id="description" name="description" value={formData.description} onChange={handleChange} required rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
       </div>
-      <div>
-        <h3 className="text-lg font-semibold">Opening Hours</h3>
-        {Object.entries(formData.openingHours).map(([day, hours]) => (
-          <div key={day} className="mb-4">
-            <h4 className="font-medium">{day.charAt(0).toUpperCase() + day.slice(1)}</h4>
-            <div>
-              <label htmlFor={`${day}-open`} className="block text-gray-700">Open</label>
-              <input
-                type="time"
-                id={`${day}-open`}
-                value={hours.open}
-                onChange={(e) => handleOpeningHoursChange(day, 'open', e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato"
-              />
-            </div>
-            <div>
-              <label htmlFor={`${day}-close`} className="block text-gray-700">Close</label>
-              <input
-                type="time"
-                id={`${day}-close`}
-                value={hours.close}
-                onChange={(e) => handleOpeningHoursChange(day, 'close', e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato"
-              />
-            </div>
+
+      <div className="mt-6">
+        <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">Restaurant Image</label>
+        <input type="file" id="image" name="image" onChange={handleImageChange} accept="image/*" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+      </div>
+
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold text-gray-700 mb-3">Address</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-1">Street</label>
+            <input type="text" id="street" name="street" value={formData.address.street} onChange={handleAddressChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
           </div>
-        ))}
+          <div>
+            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">City</label>
+            <input type="text" id="city" name="city" value={formData.address.city} onChange={handleAddressChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+          </div>
+          <div>
+            <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">State</label>
+            <input type="text" id="state" name="state" value={formData.address.state} onChange={handleAddressChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+          </div>
+          <div>
+            <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">Zip Code</label>
+            <input type="text" id="zipCode" name="zipCode" value={formData.address.zipCode} onChange={handleAddressChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+          </div>
+        </div>
       </div>
-      <div>
-        <label htmlFor="rating" className="block text-gray-700">Rating</label>
+
+      <div className="mt-6">
+        <label htmlFor="cuisine" className="block text-sm font-medium text-gray-700 mb-1">Cuisine (comma-separated)</label>
+        <input type="text" id="cuisine" name="cuisine" value={formData.cuisine.join(', ')} onChange={handleCuisineChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+      </div>
+
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold text-gray-700 mb-3">Opening Hours</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(formData.openingHours).map(([day, hours]) => (
+            <div key={day} className="bg-gray-50 p-4 rounded-md">
+              <h4 className="font-medium text-gray-700 mb-2 capitalize">{day}</h4>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label htmlFor={`${day}-open`} className="block text-xs text-gray-500 mb-1">Open</label>
+                  <input
+                    type="time"
+                    id={`${day}-open`}
+                    value={hours.open}
+                    onChange={(e) => handleOpeningHoursChange(day, 'open', e.target.value)}
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`${day}-close`} className="block text-xs text-gray-500 mb-1">Close</label>
+                  <input
+                    type="time"
+                    id={`${day}-close`}
+                    value={hours.close}
+                    onChange={(e) => handleOpeningHoursChange(day, 'close', e.target.value)}
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <label htmlFor="rating" className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
         <input
           type="number"
           id="rating"
@@ -175,33 +211,26 @@ const RestaurantForm = ({ onSubmit, initialData, onCancel, categories }) => {
           max="5"
           step="0.1"
           required
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
         />
       </div>
-      <div>
-        <label htmlFor="category" className="block text-gray-700">Category</label>
-        <select
-          name="category"
-          value={formData.category || ''}
-          onChange={handleChange}
-          required
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring focus:ring-tomato"
-        >
-          <option value="">Select a category</option>
-          {categories.map((category) => (
-            <option key={category._id} value={category._id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="flex justify-between">
-        <button type="submit" className="bg-tomato text-white py-2 px-4 rounded-md hover:bg-red-600 transition">
+
+      <div className="mt-8 flex justify-between">
+        <button type="submit" className="bg-red-600 text-white py-2 px-6 rounded-md hover:bg-red-700 transition duration-300">
           {initialData ? 'Update' : 'Create'} Restaurant
         </button>
-        {initialData && <button type="button" onClick={onCancel} className="text-gray-700 hover:text-tomato">Cancel</button>}
+        {initialData && (
+          <button type="button" onClick={onCancel} className="text-gray-600 hover:text-red-600 transition duration-300">
+            Cancel
+          </button>
+        )}
       </div>
+
     </form>
+    
+    
+    </>
+    
   );
 };
 

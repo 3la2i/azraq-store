@@ -1,11 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Home, Users, Truck, Utensils, ShoppingBag, LogOut } from 'lucide-react'
+import { Home, Users, Truck, Utensils, ShoppingBag, LogOut, DollarSign } from 'lucide-react'
 import Swal from 'sweetalert2'
+import axios from 'axios'
 
 const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [dashboardStats, setDashboardStats] = useState(null)
   const location = useLocation()
+
+  useEffect(() => {
+    fetchDashboardStats()
+  }, [])
+
+  const fetchDashboardStats = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/dashboard/stats')
+      setDashboardStats(response.data)
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error)
+    }
+  }
 
   const menuItems = [
     { path: '/admin', icon: Home, label: 'Dashboard' },
@@ -35,6 +50,16 @@ const Admin = () => {
       }
     })
   }
+
+  const StatCard = ({ icon: Icon, label, value }) => (
+    <div className="bg-white rounded-lg shadow-md p-4 flex items-center">
+      <Icon className="h-8 w-8 text-tomato mr-4" />
+      <div>
+        <p className="text-gray-500 text-sm">{label}</p>
+        <p className="text-2xl font-bold">{value}</p>
+      </div>
+    </div>
+  )
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -79,6 +104,22 @@ const Admin = () => {
           </div>
         </header>
         <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          {location.pathname === '/admin' && dashboardStats && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <StatCard icon={Users} label="Users" value={dashboardStats.users} />
+              <StatCard icon={Utensils} label="Restaurants" value={dashboardStats.restaurants} />
+              <StatCard icon={ShoppingBag} label="Products" value={dashboardStats.products} />
+              <StatCard icon={Truck} label="Drivers" value={dashboardStats.drivers} />
+              <StatCard icon={ShoppingBag} label="Orders" value={dashboardStats.orders} />
+              <div className="bg-white rounded-lg shadow-md p-4">
+                <h3 className="text-lg font-semibold mb-2">Transactions</h3>
+                <div className="flex justify-between">
+                  <StatCard icon={DollarSign} label="Cash" value={dashboardStats.transactions.cash} />
+                  <StatCard icon={DollarSign} label="PayPal" value={dashboardStats.transactions.paypal} />
+                </div>
+              </div>
+            </div>
+          )}
           <div className="px-4 py-6 sm:px-0">
             <div className="border-4 border-dashed border-gray-200 rounded-lg h-96">
               <Outlet />
@@ -88,68 +129,6 @@ const Admin = () => {
       </div>
     </div>
   )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
 }
 
 export default Admin

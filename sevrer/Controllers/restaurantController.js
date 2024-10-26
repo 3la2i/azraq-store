@@ -52,16 +52,37 @@ exports.getRestaurantById = async (req, res) => {
 // Update a restaurant by ID
 exports.updateRestaurant = async (req, res) => {
   try {
+    console.log("Received update request for restaurant:", req.params.id);
+    console.log("Request body:", req.body);
+
+    const restaurantData = {
+      ...req.body,
+      address: JSON.parse(req.body.address),
+      openingHours: JSON.parse(req.body.openingHours),
+      cuisine: req.body.cuisine ? JSON.parse(req.body.cuisine) : undefined,
+    };
+
+    if (req.file) {
+      restaurantData.image = req.file.path;
+    }
+
+    // Remove _id from restaurantData to avoid modification attempts
+    delete restaurantData._id;
+
     const restaurant = await Restaurant.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      restaurantData,
       { new: true, runValidators: true }
     );
+
     if (!restaurant) {
       return res.status(404).json({ message: "Restaurant not found" });
     }
+
+    console.log("Updated restaurant:", restaurant);
     res.status(200).json(restaurant);
   } catch (err) {
+    console.error("Error updating restaurant:", err);
     res.status(400).json({ error: err.message });
   }
 };
