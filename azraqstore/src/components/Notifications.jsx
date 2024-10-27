@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Bell } from 'lucide-react';
+import { Bell, X } from 'lucide-react';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -15,14 +15,31 @@ const Notifications = () => {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('token');
-      console.log('Fetching notifications with token:', token);
       const response = await axios.get('http://localhost:5000/api/orders/notifications', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log('Notifications received:', response.data);
       setNotifications(response.data);
     } catch (error) {
       console.error('Error fetching notifications:', error.response?.data || error.message);
+    }
+  };
+
+  const deleteNotification = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.delete(`http://localhost:5000/api/orders/notifications/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.status === 200) {
+        setNotifications(notifications.filter(notification => notification._id !== id));
+      } else {
+        console.error('Unexpected response status:', response.status);
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error.response?.data || error.message);
+      // Optionally, show an error message to the user
+      // For example: setErrorMessage('Failed to delete notification. Please try again.');
     }
   };
 
@@ -57,13 +74,21 @@ const Notifications = () => {
           <div className="py-2">
             {notifications.length > 0 ? (
               notifications.map((notification) => (
-                <div key={notification._id} className="px-4 py-2 hover:bg-gray-100">
-                  <p className="text-sm">
-                    {getNotificationIcon(notification.type)} {notification.message}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(notification.createdAt).toLocaleString()}
-                  </p>
+                <div key={notification._id} className="px-4 py-2 hover:bg-gray-100 flex justify-between items-start">
+                  <div>
+                    <p className="text-sm">
+                      {getNotificationIcon(notification.type)} {notification.message}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(notification.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => deleteNotification(notification._id)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
               ))
             ) : (

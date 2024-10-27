@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { User, MapPin, Mail, Phone, Calendar, Clock, Edit2, Package, ChevronDown, ChevronUp } from 'lucide-react'
+import Notifications from '../../components/Notifications'
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null)
@@ -89,7 +90,10 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-red-50 py-12">
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-red-600 mb-8 text-center">Your Profile</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold text-red-600">Your Profile</h1>
+          <Notifications />
+        </div>
         
         <div className="flex flex-col lg:flex-row gap-8">
           {/* User Profile Section */}
@@ -221,7 +225,7 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Orders Section */}
+          {/* Order History Section */}
           <div className="lg:w-1/2">
             <div className="bg-white shadow-lg rounded-lg overflow-hidden">
               <div className="px-6 py-4 bg-red-600 text-white">

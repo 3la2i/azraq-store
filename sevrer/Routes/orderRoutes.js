@@ -36,5 +36,6 @@ router.put('/:orderId/complete', auth, orderController.completeDelivery);
 
 // Add this new route
 router.get('/notifications', auth, orderController.getUserNotifications);
+router.delete('/notifications/:id', auth, orderController.deleteNotification);
 
 module.exports = router;

@@ -360,3 +360,26 @@ exports.getUserNotifications = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Add this new function to delete a notification
+exports.deleteNotification = async (req, res) => {
+  try {
+    const notificationId = req.params.id;
+    const userId = req.user.id;
+
+    console.log(`Attempting to delete notification: ${notificationId} for user: ${userId}`);
+
+    const result = await Notification.findOneAndDelete({ _id: notificationId, user: userId });
+
+    if (!result) {
+      console.log(`Notification not found or user doesn't have permission`);
+      return res.status(404).json({ message: 'Notification not found or you do not have permission to delete it' });
+    }
+
+    console.log(`Notification deleted successfully`);
+    res.json({ message: 'Notification deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

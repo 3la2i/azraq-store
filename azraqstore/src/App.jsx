@@ -94,7 +94,7 @@ const App = () => {
         <Route path="/resturantpage" element={<RestaurantsPage />} />
       </Routes>
       {location.pathname !== "/admin" && <Footer />}
-      {location.pathname !== "/driver" && <Footer />}
+      {/* {location.pathname !== "/driver" && <Footer />} */}
     </div>
   );
 };
