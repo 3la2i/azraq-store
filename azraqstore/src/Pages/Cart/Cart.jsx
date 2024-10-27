@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { ShoppingCart, X, CreditCard, DollarSign, Truck } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const TableRow = ({ item, removeItem }) => (
   <tr className="border-b border-gray-200">
@@ -122,28 +123,52 @@ const Cart = () => {
     }
 
     try {
-      const user = JSON.parse(localStorage.getItem('user'));
-      const orderData = {
-        userId: user._id,
-        items: cart.items,
-        total: cart.total + 5,
-        deliveryAddress: {
-          street: deliveryInfo.address,
-          city: '',
-          state: '',
-          zipCode: ''
-        },
-        paymentMethod: paymentMethod,
-        paymentDetails: paymentData,
-        ...deliveryInfo
-      };
+      const result = await Swal.fire({
+        title: 'Confirm Order',
+        text: 'Are you sure you want to submit your order?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, submit order',
+        cancelButtonText: 'Cancel'
+      });
 
-      const response = await axios.post('http://localhost:5000/api/orders/createOrder', orderData);
-      setCart(null);
-      alert('Order submitted successfully!');
+      if (result.isConfirmed) {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const orderData = {
+          userId: user._id,
+          items: cart.items,
+          total: cart.total + 5,
+          deliveryAddress: {
+            street: deliveryInfo.address,
+            city: '',
+            state: '',
+            zipCode: ''
+          },
+          paymentMethod: paymentMethod,
+          paymentDetails: paymentData,
+          ...deliveryInfo
+        };
+
+        const response = await axios.post('http://localhost:5000/api/orders/createOrder', orderData);
+        setCart(null);
+        await Swal.fire({
+          title: 'Order Received!',
+          text: 'Thank you! Your order will be delivered in 30-45 minutes. Check your profile for order status updates.',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+        // Clear cart and redirect to profile page
+        // Assuming you're using react-router-dom for navigation
+        // navigate('/profile');
+      }
     } catch (error) {
       console.error('Error submitting order:', error.response?.data || error.message);
-      setError('Failed to submit order. Please try again later.');
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to submit order. Please try again later.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     }
   };
 
