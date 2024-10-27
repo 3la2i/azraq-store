@@ -58,22 +58,73 @@ const DriverOrdersPage = () => {
         </span>
       </div>
       <div className="p-4">
-        <div className="space-y-4">
-          <div className="flex items-center">
-            <DollarSign className="h-5 w-5 text-red-500 mr-2" />
-            <span className="font-medium">${order.total.toFixed(2)}</span>
-          </div>
-          <div className="flex items-center">
-            <CreditCard className="h-5 w-5 text-red-500 mr-2" />
-            <span>{order.paymentMethod === 'cash' ? 'Cash on Delivery' : 'PayPal'}</span>
-          </div>
-          <div className="flex items-start">
-            <MapPin className="h-5 w-5 text-red-500 mr-2 mt-1" />
-            <div>
-              <p className="font-medium">{order.firstName} {order.lastName}</p>
-              <p className="text-sm text-gray-600">{order.deliveryAddress.street}, {order.deliveryAddress.city}</p>
+        <div className="space-y-6">
+          {/* Order Summary */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h3 className="text-lg font-semibold mb-2">Order Summary</h3>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center">
+                <DollarSign className="h-5 w-5 text-red-500 mr-2" />
+                <span className="font-medium">Total: ${order.total.toFixed(2)}</span>
+              </div>
+              <div className="flex items-center">
+                <CreditCard className="h-5 w-5 text-red-500 mr-2" />
+                <span>{order.paymentMethod === 'cash' ? 'Cash on Delivery' : 'PayPal'}</span>
+              </div>
             </div>
           </div>
+
+          {/* Customer Information */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h3 className="text-lg font-semibold mb-2">Customer Information</h3>
+            <div className="space-y-2">
+              <p><span className="font-medium">Name:</span> {order.firstName} {order.lastName}</p>
+              <div className="flex items-start">
+                <MapPin className="h-5 w-5 text-red-500 mr-2 mt-1" />
+                <div>
+                  <p className="font-medium">Delivery Address:</p>
+                  <p>{order.deliveryAddress.street}</p>
+                  <p>{order.deliveryAddress.city}, {order.deliveryAddress.state} {order.deliveryAddress.zipCode}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Order Items */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h3 className="text-lg font-semibold mb-2">Order Items</h3>
+            <ul className="space-y-2">
+              {order.items.map((item, index) => (
+                <li key={index} className="flex justify-between items-center">
+                  <span>{item.quantity}x {item.product.name}</span>
+                  <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Restaurant Information */}
+          {order.items[0].product.restaurant && (
+            <div className="bg-gray-50 p-4 rounded-md border-l-4 border-red-500">
+              <h3 className="text-xl font-semibold mb-2 text-red-600">Restaurant Information</h3>
+              <div className="space-y-2">
+                <p className="text-lg"><span className="font-medium">Name:</span> {order.items[0].product.restaurant.name}</p>
+                <div className="flex items-start">
+                  <MapPin className="h-5 w-5 text-red-500 mr-2 mt-1" />
+                  <div>
+                    <p className="font-medium">Address:</p>
+                    <p>{order.items[0].product.restaurant.address.street}</p>
+                    <p>{order.items[0].product.restaurant.address.city}, {order.items[0].product.restaurant.address.state} {order.items[0].product.restaurant.address.zipCode}</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Phone className="h-5 w-5 text-red-500 mr-2" />
+                  <span>{order.items[0].product.restaurant.phoneNumber}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {renderOrderActions(order)}
         </div>
       </div>
@@ -166,15 +217,15 @@ const DriverOrdersPage = () => {
           </div>
         )}
 
-        {!activeOrder && (
+        {availableOrders.length > 0 && (
           <div className="mb-8">
             <h2 className="text-2xl font-semibold text-red-600 mb-4">Available Orders</h2>
-            {availableOrders.length > 0 ? (
-              availableOrders.map(order => renderOrderCard(order))
-            ) : (
-              <p className="text-center text-gray-600">No available orders at the moment.</p>
-            )}
+            {availableOrders.map(order => renderOrderCard(order))}
           </div>
+        )}
+
+        {!activeOrder && availableOrders.length === 0 && (
+          <p className="text-center text-gray-600">No available orders at the moment.</p>
         )}
       </div>
       <ProfilePage/>
