@@ -206,28 +206,12 @@ exports.completeDelivery = async (req, res) => {
 // In your orderController.js
 exports.getUserOrders = async (req, res) => {
   try {
-    if (!req.user || !req.user.userId) {
-      return res.status(401).json({ message: 'User not authenticated' });
-    }
-
-    const userId = req.user.userId;
-
-    const orders = await Order.find({ user: userId })
-      .populate({
-        path: 'items.product',
-        populate: {
-          path: 'restaurant',
-          model: 'Restaurant',
-          select: 'name address phoneNumber'
-        }
-      })
-      .populate('restaurant', 'name') // Add this line to populate the restaurant field
-      .sort({ createdAt: -1 });
-
-    res.status(200).json(orders);
+    const userId = req.user.id; // Make sure this matches how you set the user ID in your auth middleware
+    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+    res.json(orders);
   } catch (error) {
-    console.error('Error fetching user orders:', error.message);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Error fetching user orders:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 

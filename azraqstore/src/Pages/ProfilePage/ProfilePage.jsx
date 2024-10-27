@@ -28,10 +28,11 @@ const ProfilePage = () => {
       setUser(response.data)
       setFormData({
         ...response.data,
-        location: `${response.data.location.coordinates[0]}, ${response.data.location.coordinates[1]}`
+        location: response.data.location ? `${response.data.location.coordinates[0]}, ${response.data.location.coordinates[1]}` : ''
       })
     } catch (error) {
       console.error('Error fetching profile:', error)
+      // Handle error (e.g., show error message to user)
     }
   }
 
@@ -44,6 +45,7 @@ const ProfilePage = () => {
       setOrders(response.data)
     } catch (error) {
       console.error('Error fetching user orders:', error)
+      // Handle error (e.g., show error message to user)
     }
   }
 
