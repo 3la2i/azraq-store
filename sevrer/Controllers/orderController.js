@@ -3,7 +3,34 @@ const Cart = require('../Models/Cart');
 const Order = require("../Models/order")
 const Payment = require("../Models/payment");
 const Product = require('../Models/product');
-console.log(Order,"the models");
+const Notification = require('../Models/notification');
+
+// Add this function at the top of the file
+const createNotification = async (userId, orderId, message, type) => {
+  try {
+    console.log('Creating notification:', { userId, orderId, message, type });
+    const notification = new Notification({
+      user: userId,
+      order: orderId,
+      message: message,
+      type: type
+    });
+    const savedNotification = await notification.save();
+    console.log('Notification created:', savedNotification);
+  } catch (error) {
+    console.error('Error creating notification:', error);
+  }
+};
+
+// Add this function at the top of the file
+const checkDriverAvailability = async (driverId) => {
+  const activeOrder = await Order.findOne({
+    driver: driverId,
+    status: { $in: ['accepted', 'on the way'] }
+  });
+  return !activeOrder;
+};
+
 exports.createOrder = async (req, res) => {
   try {
     console.log('Received order data:', req.body);
@@ -99,14 +126,30 @@ exports.getAvailableOrders = async (req, res) => {
 
 exports.acceptOrder = async (req, res) => {
   try {
+    const driverId = req.user.id;
+    const isAvailable = await checkDriverAvailability(driverId);
+
+    if (!isAvailable) {
+      return res.status(400).json({ message: 'You already have an active order. Complete it before accepting a new one.' });
+    }
+
     const order = await Order.findByIdAndUpdate(
       req.params.orderId,
-      { $set: { status: 'accepted', driver: req.user.id } },
+      { $set: { status: 'accepted', driver: driverId } },
       { new: true }
-    );
+    ).populate('user', '_id');
+
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
+
+    await createNotification(
+      order.user._id,
+      order._id,
+      'Your order has been accepted by a driver.',
+      'order_accepted'
+    );
+
     res.json(order);
   } catch (error) {
     console.error('Error accepting order:', error);
@@ -120,10 +163,16 @@ exports.startDelivery = async (req, res) => {
       req.params.orderId,
       { $set: { status: 'on the way' } },
       { new: true }
-    );
+    ).populate('user', '_id');
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
+    await createNotification(
+      order.user._id,
+      order._id,
+      'Your order is on the way!',
+      'order_on_the_way'
+    );
     res.json(order);
   } catch (error) {
     console.error('Error starting delivery:', error);
@@ -137,10 +186,16 @@ exports.completeDelivery = async (req, res) => {
       req.params.orderId,
       { $set: { status: 'delivered' } },
       { new: true }
-    );
+    ).populate('user', '_id');
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
+    await createNotification(
+      order.user._id,
+      order._id,
+      'Your order has been delivered. Enjoy your meal!',
+      'order_delivered'
+    );
     res.json(order);
   } catch (error) {
     console.error('Error completing delivery:', error);
@@ -248,19 +303,35 @@ exports.getRestaurantOrders = async (req, res) => {
 exports.getDriverOrders = async (req, res) => {
   console.log('getDriverOrders function called');
   try {
-    const orders = await Order.find({ driver: req.user.id })
-      .populate({
-        path: 'items.product',
-        populate: {
-          path: 'restaurant',
-          model: 'Restaurant',
-          select: 'name address phoneNumber'
-        }
-      })
-      .select('_id total status firstName lastName deliveryAddress items paymentMethod')
-      .sort({ createdAt: -1 });
+    const activeOrder = await Order.findOne({
+      driver: req.user.id,
+      status: { $in: ['accepted', 'on the way'] }
+    }).populate({
+      path: 'items.product',
+      populate: {
+        path: 'restaurant',
+        model: 'Restaurant',
+        select: 'name address phoneNumber'
+      }
+    }).select('_id total status firstName lastName deliveryAddress items paymentMethod');
 
-    res.json(orders);
+    const availableOrders = await Order.find({
+      status: 'pending',
+      driver: { $exists: false }
+    }).populate({
+      path: 'items.product',
+      populate: {
+        path: 'restaurant',
+        model: 'Restaurant',
+        select: 'name address phoneNumber'
+      }
+    }).select('_id total status firstName lastName deliveryAddress items paymentMethod')
+    .sort({ createdAt: -1 });
+
+    res.json({
+      activeOrder: activeOrder,
+      availableOrders: availableOrders
+    });
   } catch (error) {
     console.error('Error fetching driver orders:', error);
     res.status(500).json({ message: 'Server error' });
@@ -290,3 +361,18 @@ exports.rejectOrder = async (req, res) => {
 
 
 
+
+// Add a new function to get user notifications
+exports.getUserNotifications = async (req, res) => {
+  try {
+    console.log('Fetching notifications for user:', req.user.id);
+    const notifications = await Notification.find({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .limit(10);
+    console.log('Notifications found:', notifications);
+    res.json(notifications);
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

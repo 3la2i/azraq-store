@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Loader2, Package, MapPin, Phone, DollarSign, CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
 import ProfilePage from '../ProfilePage/ProfilePage';
+import Notifications from '../../components/Notifications';
 
 const DriverOrdersPage = () => {
-  const [orders, setOrders] = useState([]);
+  const [activeOrder, setActiveOrder] = useState(null);
+  const [availableOrders, setAvailableOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [expandedOrder, setExpandedOrder] = useState(null);
 
   useEffect(() => {
     fetchOrders();
@@ -19,7 +20,8 @@ const DriverOrdersPage = () => {
       const response = await axios.get('http://localhost:5000/api/orders/driver', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setOrders(response.data);
+      setActiveOrder(response.data.activeOrder);
+      setAvailableOrders(response.data.availableOrders);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -37,12 +39,12 @@ const DriverOrdersPage = () => {
       fetchOrders(); // Refresh the order list
     } catch (error) {
       console.error(`Error ${action}ing order:`, error);
-      setError(`Failed to ${action} order`);
+      setError(error.response?.data?.message || `Failed to ${action} order`);
     }
   };
 
   const toggleOrderExpansion = (orderId) => {
-    setExpandedOrder(expandedOrder === orderId ? null : orderId);
+    setActiveOrder(orderId);
   };
 
   const renderOrderCard = (order) => (
@@ -149,51 +151,31 @@ const DriverOrdersPage = () => {
     </div>
   );
 
-  const pendingOrders = orders.filter(order => order.status === 'pending');
-  const acceptedOrders = orders.filter(order => order.status === 'accepted');
-  const onTheWayOrders = orders.filter(order => order.status === 'on the way');
-  const completedOrders = orders.filter(order => order.status === 'delivered');
-
   return (
     <div className="min-h-screen bg-red-50 py-12">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold text-red-600 mb-8 text-center">Driver Orders</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-red-600">Driver Orders</h1>
+          <Notifications />
+        </div>
         
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-red-600 mb-4">Pending Orders</h2>
-          {pendingOrders.length > 0 ? (
-            pendingOrders.map(order => renderOrderCard(order))
-          ) : (
-            <p className="text-center text-gray-600">No pending orders at the moment.</p>
-          )}
-        </div>
+        {activeOrder && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-red-600 mb-4">Your Active Order</h2>
+            {renderOrderCard(activeOrder)}
+          </div>
+        )}
 
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-red-600 mb-4">Accepted Orders</h2>
-          {acceptedOrders.length > 0 ? (
-            acceptedOrders.map(order => renderOrderCard(order))
-          ) : (
-            <p className="text-center text-gray-600">No accepted orders at the moment.</p>
-          )}
-        </div>
-
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-red-600 mb-4">On The Way</h2>
-          {onTheWayOrders.length > 0 ? (
-            onTheWayOrders.map(order => renderOrderCard(order))
-          ) : (
-            <p className="text-center text-gray-600">No orders on the way at the moment.</p>
-          )}
-        </div>
-
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-red-600 mb-4">Completed Orders</h2>
-          {completedOrders.length > 0 ? (
-            completedOrders.map(order => renderOrderCard(order))
-          ) : (
-            <p className="text-center text-gray-600">No completed orders yet.</p>
-          )}
-        </div>
+        {!activeOrder && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-red-600 mb-4">Available Orders</h2>
+            {availableOrders.length > 0 ? (
+              availableOrders.map(order => renderOrderCard(order))
+            ) : (
+              <p className="text-center text-gray-600">No available orders at the moment.</p>
+            )}
+          </div>
+        )}
       </div>
       <ProfilePage/>
     </div>

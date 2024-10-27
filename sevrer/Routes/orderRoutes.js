@@ -34,4 +34,7 @@ router.get('/driver', auth, (req, res, next) => {
 router.put('/:orderId/start_delivery', auth, orderController.startDelivery);
 router.put('/:orderId/complete', auth, orderController.completeDelivery);
 
+// Add this new route
+router.get('/notifications', auth, orderController.getUserNotifications);
+
 module.exports = router;

@@ -17,7 +17,8 @@ module.exports = (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     console.log('Decoded token:', decoded);
     
-    req.user = decoded;
+    req.user = { id: decoded.userId }; // Make sure this line exists
+    console.log('User authenticated:', req.user);
     next();
   // } catch (err) {
     // console.error('Token verification error:', err);
