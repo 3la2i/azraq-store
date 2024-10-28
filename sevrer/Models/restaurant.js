@@ -1,19 +1,31 @@
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
 
-const restaurantSchema = new Schema({
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-  image: { type: String },
-  address: {
-    street: { type: String, required: true },
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    zipCode: { type: String, required: true },
+const restaurantSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
   },
-  cuisine: [{ type: String }],
-  rating: { type: Number, default: 0 }, // Ensure this field exists
-  category: { type: Schema.Types.ObjectId, ref: 'Category' },
+  description: {
+    type: String,
+    required: true
+  },
+  image: {
+    type: String
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  address: {
+    street: String,
+    city: String,
+    state: String,
+    zipCode: String
+  },
+  cuisine: [{
+    type: String
+  }],
   openingHours: {
     monday: { open: String, close: String },
     tuesday: { open: String, close: String },
@@ -21,9 +33,14 @@ const restaurantSchema = new Schema({
     thursday: { open: String, close: String },
     friday: { open: String, close: String },
     saturday: { open: String, close: String },
-    sunday: { open: String, close: String },
+    sunday: { open: String, close: String }
   },
+  rating: {
+    type: Number,
+    default: 0
+  }
+}, {
+  timestamps: true
 });
 
-const Restaurant = mongoose.model("Restaurant", restaurantSchema);
-module.exports = Restaurant;
+module.exports = mongoose.model("Restaurant", restaurantSchema);

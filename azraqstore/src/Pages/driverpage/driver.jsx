@@ -65,7 +65,7 @@ const DriverOrdersPage = () => {
             <div className="grid grid-cols-2 gap-2">
               <div className="flex items-center">
                 <DollarSign className="h-5 w-5 text-red-500 mr-2" />
-                <span className="font-medium">Total: ${order.total.toFixed(2)}</span>
+                <span className="font-medium">Total: ${order.total?.toFixed(2) || '0.00'}</span>
               </div>
               <div className="flex items-center">
                 <CreditCard className="h-5 w-5 text-red-500 mr-2" />
@@ -79,14 +79,22 @@ const DriverOrdersPage = () => {
             <h3 className="text-lg font-semibold mb-2">Customer Information</h3>
             <div className="space-y-2">
               <p><span className="font-medium">Name:</span> {order.firstName} {order.lastName}</p>
-              <div className="flex items-start">
-                <MapPin className="h-5 w-5 text-red-500 mr-2 mt-1" />
-                <div>
-                  <p className="font-medium">Delivery Address:</p>
-                  <p>{order.deliveryAddress.street}</p>
-                  <p>{order.deliveryAddress.city}, {order.deliveryAddress.state} {order.deliveryAddress.zipCode}</p>
+              {order.deliveryAddress && (
+                <div className="flex items-start">
+                  <MapPin className="h-5 w-5 text-red-500 mr-2 mt-1" />
+                  <div>
+                    <p className="font-medium">Delivery Address:</p>
+                    <p>{order.deliveryAddress.street || 'N/A'}</p>
+                    <p>
+                      {[
+                        order.deliveryAddress.city,
+                        order.deliveryAddress.state,
+                        order.deliveryAddress.zipCode
+                      ].filter(Boolean).join(', ') || 'N/A'}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -94,32 +102,42 @@ const DriverOrdersPage = () => {
           <div className="bg-gray-50 p-4 rounded-md">
             <h3 className="text-lg font-semibold mb-2">Order Items</h3>
             <ul className="space-y-2">
-              {order.items.map((item, index) => (
+              {order.items?.map((item, index) => (
                 <li key={index} className="flex justify-between items-center">
-                  <span>{item.quantity}x {item.product.name}</span>
-                  <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                  <span>{item.quantity}x {item.product?.name || 'Unknown Product'}</span>
+                  <span className="font-medium">${((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                 </li>
               ))}
             </ul>
           </div>
 
           {/* Restaurant Information */}
-          {order.items[0].product.restaurant && (
+          {order.items?.[0]?.product?.restaurant && (
             <div className="bg-gray-50 p-4 rounded-md border-l-4 border-red-500">
               <h3 className="text-xl font-semibold mb-2 text-red-600">Restaurant Information</h3>
               <div className="space-y-2">
-                <p className="text-lg"><span className="font-medium">Name:</span> {order.items[0].product.restaurant.name}</p>
-                <div className="flex items-start">
-                  <MapPin className="h-5 w-5 text-red-500 mr-2 mt-1" />
-                  <div>
-                    <p className="font-medium">Address:</p>
-                    <p>{order.items[0].product.restaurant.address.street}</p>
-                    <p>{order.items[0].product.restaurant.address.city}, {order.items[0].product.restaurant.address.state} {order.items[0].product.restaurant.address.zipCode}</p>
+                <p className="text-lg">
+                  <span className="font-medium">Name:</span> {order.items[0].product.restaurant.name}
+                </p>
+                {order.items[0].product.restaurant.address && (
+                  <div className="flex items-start">
+                    <MapPin className="h-5 w-5 text-red-500 mr-2 mt-1" />
+                    <div>
+                      <p className="font-medium">Address:</p>
+                      <p>{order.items[0].product.restaurant.address.street || 'N/A'}</p>
+                      <p>
+                        {[
+                          order.items[0].product.restaurant.address.city,
+                          order.items[0].product.restaurant.address.state,
+                          order.items[0].product.restaurant.address.zipCode
+                        ].filter(Boolean).join(', ') || 'N/A'}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
                 <div className="flex items-center">
                   <Phone className="h-5 w-5 text-red-500 mr-2" />
-                  <span>{order.items[0].product.restaurant.phoneNumber}</span>
+                  <span>{order.items[0].product.restaurant.phoneNumber || 'N/A'}</span>
                 </div>
               </div>
             </div>

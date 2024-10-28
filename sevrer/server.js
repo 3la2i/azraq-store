@@ -15,6 +15,7 @@ const orderRoutes = require('./Routes/orderRoutes');
 const userRoutes = require('./Routes/userRoutes');
 
 const dashboardRoutes = require('./Routes/dashboardRoutes');
+const restaurantOwnerRoutes = require('./Routes/restaurantOwnerRoutes');
 
 
 
@@ -47,6 +48,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage })
 
+// Make sure this line appears before any routes that use authentication
+app.use('/api/auth', authRoutes);
+
 // Use product routes
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
@@ -60,7 +64,6 @@ app.use('/api/dashboard', dashboardRoutes);
 
 app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/categories', categoryRoutes);
-app.use('/api/auth', authRoutes);
 app.use('/api/contactus', contactRoutes);
 app.get('/', (req, res) => {
   res.send('Hello, world!');
@@ -70,3 +73,5 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+app.use('/api/restaurant-owner', restaurantOwnerRoutes);

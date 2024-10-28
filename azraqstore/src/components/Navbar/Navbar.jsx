@@ -7,7 +7,7 @@ import { User } from 'lucide-react'; // Import the User icon from lucide-react
 const Navbar = () => {
   const [menu, setMenu] = useState("menu");
   const [isOpen, setIsOpen] = useState(false);
-  const { isLoggedIn, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth(); // Change isLoggedIn to isAuthenticated
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -74,7 +74,7 @@ const Navbar = () => {
               </Link>
               <div className="absolute bg-red-500 rounded-full w-2 h-2 top-0 right-0"></div>
             </div>
-            {isLoggedIn ? (
+            {isAuthenticated ? ( // Change isLoggedIn to isAuthenticated
               <div className="flex items-center gap-4">
                 <Link 
                   to="/profile"

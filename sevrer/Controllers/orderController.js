@@ -349,7 +349,7 @@ exports.rejectOrder = async (req, res) => {
 // Add a new function to get user notifications
 exports.getUserNotifications = async (req, res) => {
   try {
-    console.log('Fetching notifications for user:', req.user.id);
+    console.log('Fetching notifications for user:', req.user);
     const notifications = await Notification.find({ user: req.user.id })
       .sort({ createdAt: -1 })
       .limit(10);

@@ -1,19 +1,18 @@
 // Login.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,8 +20,8 @@ const Login = () => {
       ...prevData,
       [name]: value
     }));
-    if (errors[name]) {
-      setErrors(prevErrors => ({
+    if (error[name]) {
+      setError(prevErrors => ({
         ...prevErrors,
         [name]: ''
       }));
@@ -39,33 +38,38 @@ const Login = () => {
     if (!formData.password) {
       newErrors.password = 'Password is required';
     }
-    setErrors(newErrors);
+    setError(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
-
     setIsLoading(true);
+    setError('');
+
     try {
       const response = await axios.post('http://localhost:5000/api/auth/login', formData);
-      const { user, token } = response.data;
-
-      // Save token and user info as needed
+      const { token, user } = response.data;
+      
+      // Login using context
       login(token, user);
-
-      console.log('user',user);
       
-      
-      // Redirect based on user role
-      if (user.role === 'driver') {
-        navigate('/driver'); // Redirect to the /driver path
-      } else {
-        navigate('/'); // Redirect to home or another path for other roles
+      // Navigate based on role
+      switch (user.role) {
+        case 'restaurant_owner':
+          navigate('/restaurant-dashboard', { replace: true });
+          break;
+        case 'admin':
+          navigate('/admin', { replace: true });
+          break;
+        case 'driver':
+          navigate('/driver', { replace: true });
+          break;
+        default:
+          navigate('/', { replace: true });
       }
     } catch (error) {
-      setErrors({ form: error.response?.data?.error || 'Login failed' });
+      setError(error.response?.data?.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -79,7 +83,7 @@ const Login = () => {
           Email
         </label>
         <input
-          className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.email ? 'border-red-500' : ''}`}
+          className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${error.email ? 'border-red-500' : ''}`}
           id="email"
           name="email"
           type="email"
@@ -87,14 +91,14 @@ const Login = () => {
           value={formData.email}
           onChange={handleChange}
         />
-        {errors.email && <p className="text-red-500 text-xs italic">{errors.email}</p>}
+        {error.email && <p className="text-red-500 text-xs italic">{error.email}</p>}
       </div>
       <div className="mb-6">
         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
           Password
         </label>
         <input
-          className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${errors.password ? 'border-red-500' : ''}`}
+          className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${error.password ? 'border-red-500' : ''}`}
           id="password"
           name="password"
           type="password"
@@ -102,9 +106,9 @@ const Login = () => {
           value={formData.password}
           onChange={handleChange}
         />
-        {errors.password && <p className="text-red-500 text-xs italic">{errors.password}</p>}
+        {error.password && <p className="text-red-500 text-xs italic">{error.password}</p>}
       </div>
-      {errors.form && <p className="text-red-500 text-sm italic mb-4">{errors.form}</p>}
+      {error.form && <p className="text-red-500 text-sm italic mb-4">{error.form}</p>}
       <div className="flex items-center justify-between">
         <button
           className={`bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}

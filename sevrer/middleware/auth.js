@@ -1,27 +1,23 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = 'alaa';
 
-module.exports = (req, res, next) => {
-  console.log('Auth headers:', req.headers); // Log all headers
-  const authHeader = req.header('Authorization');
-  console.log('Auth header:', authHeader); // Log the Authorization header
-
-  const token = authHeader?.split(' ')[1];
-  console.log('Extracted token:', token); // Log the extracted token
-  
-  if (!token) {
-    return res.status(401).json({ message: 'No token, authorization denied' });
-  }
-
-  // try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    console.log('Decoded token:', decoded);
+const auth = async (req, res, next) => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
     
-    req.user = { id: decoded.userId }; // Make sure this line exists
-    console.log('User authenticated:', req.user);
+    if (!token) {
+      return res.status(401).json({ message: 'No auth token provided' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
+    req.user = {
+      userId: decoded.userId,
+      role: decoded.role
+    };
     next();
-  // } catch (err) {
-    // console.error('Token verification error:', err);
-    // res.status(401).json({ message: 'Token is not valid' });
-  // }
+  } catch (error) {
+    console.error('Auth middleware error:', error);
+    res.status(401).json({ message: 'Invalid token' });
+  }
 };
+
+module.exports = auth;

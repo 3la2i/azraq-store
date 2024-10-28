@@ -55,11 +55,11 @@ const SignUp = () => {
 
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/signup', formData);
+      const response = await axios.post('http://localhost:5000/api/auth/signup', formData);  // Changed from /register to /signup
       login(response.data.token, response.data.user);
       navigate('/');
     } catch (error) {
-      setErrors({ form: error.response?.data?.error || 'Signup failed' });
+      setErrors({ form: error.response?.data?.message || 'Signup failed' });
     } finally {
       setIsLoading(false);
     }

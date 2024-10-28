@@ -60,6 +60,11 @@ import Drivers from "./Pages/Admin/Drivers";
 import AllUsers from "./Pages/Admin/AllUsers";
 import RestaurantsPage from "./Pages/Restaurants/RestaurantsPage";
 
+// Add new imports for restaurant owner features
+import RestaurantOwnerDashboard from "./Pages/RestaurantOwner/Dashboard";
+import RestaurantOwnerRegister from "./components/auth/RestaurantOwnerRegister";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 const App = () => {
   const location = useLocation();
 
@@ -92,6 +97,17 @@ const App = () => {
        
         <Route path="/guard" element={<DriverRouteGuard />} />
         <Route path="/resturantpage" element={<RestaurantsPage />} />
+
+        {/* Restaurant Owner Routes */}
+        <Route 
+          path="/restaurant-dashboard" 
+          element={
+            <ProtectedRoute allowedRoles={['restaurant_owner']}>
+              <RestaurantOwnerDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/register/restaurant-owner" element={<RestaurantOwnerRegister />} />
       </Routes>
       {location.pathname !== "/admin" && <Footer />}
       {/* {location.pathname !== "/driver" && <Footer />} */}

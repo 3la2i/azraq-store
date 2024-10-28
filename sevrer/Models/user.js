@@ -7,14 +7,14 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['customer', 'admin', 'driver'], default: 'customer' },
+  role: { type: String, enum: ['customer', 'restaurant_owner', 'admin', 'driver'], default: 'customer' },
+  phoneNumber: { type: String },
+  restaurant: { type: Schema.Types.ObjectId, ref: 'Restaurant' },
   token: String,
   location: {
-    
     type: { type: String, default: 'Point' },
     coordinates: [Number]
   },
-  phoneNumber: String,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   isActive: { type: Boolean, default: true },

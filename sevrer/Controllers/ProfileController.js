@@ -3,7 +3,8 @@ const User = require('../Models/user');
 // Get profile function
 const getProfile = async (req, res) => {
   try {
-    const userId = req.user.id; // Make sure this matches how you set the user ID in your auth middleware
+    console.log(req.user.userId,"userrrrrrrrrrrrrrrrrr")
+    const userId = req.user.userId; // Make sure this matches how you set the user ID in your auth middleware
     const user = await User.findById(userId).select('-password');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
