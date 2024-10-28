@@ -19,12 +19,25 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// Add debugging middleware
+router.use((req, res, next) => {
+  console.log('Restaurant owner route accessed:', {
+    method: req.method,
+    path: req.path,
+    originalUrl: req.originalUrl
+  });
+  next();
+});
+
 // Apply auth and role middleware to all routes
 router.use(auth);
 router.use(checkRole('restaurant_owner'));
 
 // Restaurant routes
-router.get('/my-restaurant', restaurantOwnerController.getMyRestaurant);
+router.get('/my-restaurant', (req, res, next) => {
+  console.log('my-restaurant route hit');
+  next();
+}, restaurantOwnerController.getMyRestaurant);
 router.post('/restaurant', upload.single('image'), restaurantOwnerController.createRestaurant);
 router.put('/restaurant', upload.single('image'), restaurantOwnerController.updateRestaurant);
 

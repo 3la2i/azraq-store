@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const restaurantSchema = new mongoose.Schema({
+const restaurantSchema = new Schema({
   name: {
     type: String,
     required: true
@@ -13,19 +14,39 @@ const restaurantSchema = new mongoose.Schema({
     type: String
   },
   owner: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
   address: {
-    street: String,
-    city: String,
-    state: String,
-    zipCode: String
+    street: {
+      type: String,
+      required: true
+    },
+    city: {
+      type: String,
+      required: true
+    },
+    state: {
+      type: String,
+      required: true
+    },
+    zipCode: {
+      type: String,
+      required: true
+    }
   },
   cuisine: [{
     type: String
   }],
+  rating: {
+    type: Number,
+    default: 0
+  },
+  category: {
+    type: Schema.Types.ObjectId,
+    ref: 'Category'
+  },
   openingHours: {
     monday: { open: String, close: String },
     tuesday: { open: String, close: String },
@@ -35,9 +56,9 @@ const restaurantSchema = new mongoose.Schema({
     saturday: { open: String, close: String },
     sunday: { open: String, close: String }
   },
-  rating: {
-    type: Number,
-    default: 0
+  isActive: {
+    type: Boolean,
+    default: true
   }
 }, {
   timestamps: true

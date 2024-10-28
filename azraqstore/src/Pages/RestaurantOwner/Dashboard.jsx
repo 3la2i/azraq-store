@@ -19,15 +19,27 @@ const Dashboard = () => {
 
   const fetchRestaurantData = async () => {
     try {
+      const token = localStorage.getItem('token');
+      console.log('Using token:', token); // Add logging
+      
       const response = await axios.get('http://localhost:5000/api/restaurant-owner/my-restaurant', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { 
+          Authorization: `Bearer ${token}`
+        }
       });
+      
+      console.log('Restaurant data:', response.data); // Add logging
       setRestaurant(response.data);
       fetchProducts();
       fetchOrders();
     } catch (error) {
+      console.error('Error details:', error.response?.data || error.message);
       if (error.response?.status === 404) {
         // No restaurant yet, that's okay
+        console.log('No restaurant found for this user');
+      } else if (error.response?.status === 401) {
+        console.log('Authentication failed');
+        // Handle unauthorized access - maybe redirect to login
       } else {
         console.error('Error fetching restaurant:', error);
       }

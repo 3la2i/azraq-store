@@ -1,40 +1,73 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const orderSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+const orderSchema = new Schema({
+    user: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'User', 
+        required: true 
+    },
+    restaurant: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'Restaurant', 
+        required: true 
     },
     items: [{
-        product: {
-            type: mongoose.Schema.Types.ObjectId,
+        product: { 
+            type: Schema.Types.ObjectId, 
             ref: 'Product',
-            required: true
+            required: true 
         },
-        quantity: {
+        quantity: { 
             type: Number,
             required: true,
-            min: 1
+            min: 1 
         },
-        price: {
+        price: { 
             type: Number,
-            required: true
-        }
+            required: true 
+        },
+        // status: { 
+        //     type: String, 
+        //     enum: ['pending', 'preparing', 'ready', 'delivered'], 
+        //     default: 'pending' 
+        // }
     }],
-    total: {
-        type: Number,
-        required: true
+    total: { 
+        type: Number, 
+        required: true 
     },
-    status: {
-        type: String,
-        enum: ['pending', 'preparing', 'ready', 'delivered', 'cancelled'],
-        default: 'pending'
+    status: { 
+        type: String, 
+        enum: ['pending', 'accepted', 'preparing', 'ready', 'on the way', 'delivered', 'cancelled'], 
+        default: 'pending' 
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
+    restaurantStatus: { 
+        type: String, 
+        enum: ['pending', 'received', 'preparing', 'ready'], 
+        default: 'pending' 
+    },
+    deliveryAddress: {
+        street: String,
+        city: String,
+        state: String,
+        zipCode: String
+    },
+    firstName: String,
+    lastName: String,
+    email: String,
+    phone: String,
+    driver: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'User' 
+    },
+    paymentMethod: { 
+        type: String, 
+        enum: ['cash', 'paypal'], 
+        required: true 
     }
+}, {
+    timestamps: true  // This will add createdAt and updatedAt automatically
 });
 
 module.exports = mongoose.model('Order', orderSchema);

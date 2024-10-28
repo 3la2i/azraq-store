@@ -20,16 +20,33 @@ const upload = multer({ storage: storage });
 // Get restaurant owner's restaurant
 exports.getMyRestaurant = async (req, res) => {
   try {
+    console.log('getMyRestaurant called');
+    console.log('Request user:', req.user);
+    console.log('User ID from token:', req.user.userId);
+    
+    if (!req.user.userId) {
+      console.log('No user ID found in request');
+      return res.status(400).json({ message: 'User ID not found in token' });
+    }
+    
+    console.log('Searching for restaurant with owner:', req.user.userId);
     const restaurant = await Restaurant.findOne({ owner: req.user.userId });
+    console.log('Restaurant query result:', restaurant);
     
     if (!restaurant) {
+      console.log('No restaurant found for user:', req.user.userId);
       return res.status(404).json({ message: 'Restaurant not found' });
     }
     
+    console.log('Found restaurant:', restaurant);
     res.json(restaurant);
   } catch (error) {
     console.error('getMyRestaurant error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 
