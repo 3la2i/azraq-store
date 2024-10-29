@@ -206,8 +206,10 @@ exports.completeDelivery = async (req, res) => {
 // In your orderController.js
 exports.getUserOrders = async (req, res) => {
   try {
-    const userId = req.user.id; // Make sure this matches how you set the user ID in your auth middleware
+    const userId = req.user.userId;
+    console.log('Fetching orders for user ID:', userId);
     const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+    console.log('Orders found:', orders);
     res.json(orders);
   } catch (error) {
     console.error('Error fetching user orders:', error);

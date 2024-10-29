@@ -43,6 +43,7 @@ const ProfilePage = () => {
       const response = await axios.get('http://localhost:5000/api/orders/user', {
         headers: { Authorization: `Bearer ${token}` }
       })
+      console.log('Fetched orders:', response.data)
       setOrders(response.data)
     } catch (error) {
       console.error('Error fetching user orders:', error)
