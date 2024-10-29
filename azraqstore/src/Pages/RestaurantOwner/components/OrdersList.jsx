@@ -51,10 +51,11 @@ const OrdersList = ({ orders, onOrderUpdated }) => {
           <div className="flex justify-between items-start mb-4">
             <div>
               <h3 className="font-bold">Order #{order._id}</h3>
+
               <p className="text-gray-600">
-                {order.user?.name || 'Anonymous'}
+               customer name: {order.user?.name || 'Anonymous'}
               </p>
-              <p className="text-gray-600">{order.user?.email}</p>
+              <p className="text-gray-600">customer email:{order.user?.email}</p>
             </div>
             <div className="text-right">
               <p className="font-bold">${order.total?.toFixed(2) || '0.00'}</p>
@@ -67,6 +68,7 @@ const OrdersList = ({ orders, onOrderUpdated }) => {
           <div className="space-y-2">
             {order.items?.map((item, index) => (
               <div key={index} className="flex justify-between items-center">
+                item name:
                 <span>{item.product?.name} x {item.quantity}</span>
                 <span>${((item.product?.price || 0) * item.quantity).toFixed(2)}</span>
               </div>
