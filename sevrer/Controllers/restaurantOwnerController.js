@@ -245,11 +245,7 @@ exports.getOrders = async (req, res) => {
     }
 
     // Find orders for this restaurant
-    const orders = await Order.find({ 
-      'items.product': { 
-        $in: await Product.find({ restaurant: restaurant._id }).distinct('_id') 
-      }
-    })
+    const orders = await Order.find({ restaurant: restaurant._id })
     .populate('user', 'name email')
     .populate({
       path: 'items.product',
@@ -261,9 +257,7 @@ exports.getOrders = async (req, res) => {
     })
     .sort({ createdAt: -1 });
 
-    // Send the response
     res.json(orders);
-
   } catch (error) {
     console.error('getOrders error:', error);
     res.status(500).json({ 
@@ -278,30 +272,57 @@ exports.getOrders = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { status } = req.body;
+    const { status, statusType } = req.body;
 
+    console.log('Updating order:', { 
+      orderId, 
+      status, 
+      statusType, 
+      userId: req.user.userId 
+    });
+
+    // Find the restaurant owned by the current user
     const restaurant = await Restaurant.findOne({ owner: req.user.userId });
     if (!restaurant) {
+      console.log('Restaurant not found for user:', req.user.userId);
       return res.status(404).json({ message: 'Restaurant not found' });
     }
 
-    // Find order and verify it belongs to this restaurant
+    console.log('Found restaurant:', {
+      restaurantId: restaurant._id,
+      ownerId: restaurant.owner
+    });
+
+    // Find the order first
     const order = await Order.findById(orderId);
     if (!order) {
+      console.log('Order not found:', orderId);
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    // Verify the order belongs to this restaurant
-    const restaurantProducts = await Product.find({ restaurant: restaurant._id }).distinct('_id');
-    const orderBelongsToRestaurant = order.items.some(item => 
-      restaurantProducts.includes(item.product.toString())
-    );
+    console.log('Found order:', {
+      orderId: order._id,
+      orderRestaurantId: order.restaurant,
+      restaurantId: restaurant._id,
+      match: order.restaurant.toString() === restaurant._id.toString()
+    });
 
-    if (!orderBelongsToRestaurant) {
+    // Check if the order belongs to this restaurant
+    if (order.restaurant.toString() !== restaurant._id.toString()) {
+      console.log('Order restaurant mismatch:', {
+        orderRestaurant: order.restaurant.toString(),
+        userRestaurant: restaurant._id.toString()
+      });
       return res.status(403).json({ message: 'Not authorized to update this order' });
     }
 
-    order.status = status;
+    // Update the appropriate status field based on statusType
+    if (statusType === 'restaurantStatus') {
+      order.restaurantStatus = status;
+    } else {
+      order.status = status;
+    }
+
     await order.save();
 
     const updatedOrder = await Order.findById(orderId)
@@ -314,6 +335,14 @@ exports.updateOrderStatus = async (req, res) => {
           select: 'name'
         }
       });
+
+    console.log('Order updated successfully:', {
+      orderId,
+      newStatus: status,
+      statusType,
+      restaurantStatus: updatedOrder.restaurantStatus,
+      orderStatus: updatedOrder.status
+    });
 
     res.json(updatedOrder);
   } catch (error) {

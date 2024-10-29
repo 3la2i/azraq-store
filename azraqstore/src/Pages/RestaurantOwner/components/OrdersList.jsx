@@ -2,22 +2,45 @@ import React from 'react';
 import axios from 'axios';
 
 const OrdersList = ({ orders, onOrderUpdated }) => {
-  const handleStatusUpdate = async (orderId, newStatus) => {
+  const handleStatusUpdate = async (orderId, newStatus, statusType) => {
     try {
-      await axios.put(
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('You must be logged in to update orders');
+        return;
+      }
+
+      console.log('Updating order status:', {
+        orderId,
+        newStatus,
+        statusType,
+        restaurantId: orders.find(o => o._id === orderId)?.restaurant
+      });
+
+      const response = await axios.put(
         `http://localhost:5000/api/restaurant-owner/orders/${orderId}/status`,
-        { status: newStatus },
+        { 
+          status: newStatus,
+          statusType: statusType
+        },
         { 
           headers: { 
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         }
       );
+
+      console.log('Order status updated:', response.data);
       onOrderUpdated();
     } catch (error) {
-      console.error('Error updating order status:', error);
-      alert('Failed to update order status');
+      console.error('Error updating order status:', {
+        error,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      const errorMessage = error.response?.data?.message || 'Failed to update order status';
+      alert(`Error: ${errorMessage}`);
     }
   };
 
@@ -50,19 +73,39 @@ const OrdersList = ({ orders, onOrderUpdated }) => {
             ))}
           </div>
 
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700">Status</label>
-            <select
-              value={order.status}
-              onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value="pending">Pending</option>
-              <option value="preparing">Preparing</option>
-              <option value="ready">Ready for Pickup</option>
-              <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
+          <div className="mt-4 space-y-4">
+            {/* Restaurant Status */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Restaurant Status</label>
+              <select
+                value={order.restaurantStatus}
+                onChange={(e) => handleStatusUpdate(order._id, e.target.value, 'restaurantStatus')}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              >
+                <option value="pending">Pending</option>
+                <option value="received">Received</option>
+                <option value="preparing">Preparing</option>
+                <option value="ready">Ready</option>
+              </select>
+            </div>
+
+            {/* Overall Order Status */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Order Status</label>
+              <select
+                value={order.status}
+                onChange={(e) => handleStatusUpdate(order._id, e.target.value, 'status')}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              >
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="preparing">Preparing</option>
+                <option value="ready">Ready for Pickup</option>
+                <option value="on the way">On the Way</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
           </div>
         </div>
       ))}

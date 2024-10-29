@@ -1,37 +1,26 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = 'your_jwt_secret'; // Make sure this matches what you used to create the token
-
-const auth = (req, res, next) => {
+module.exports = (req, res, next) => {
   try {
-    console.log('Auth middleware - Request path:', req.path);
-    console.log('Auth middleware - Full URL:', req.originalUrl);
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    console.log('Received token:', token ? token.substring(0, 20) + '...' : 'No token');
-    
-    if (!token) {
-      return res.status(401).json({ message: 'No auth token found' });
-    }
+    console.log('Auth middleware - decoded token:', {
+      userId: decoded.userId,
+      role: decoded.role
+    });
 
-    const decoded = jwt.verify(token, JWT_SECRET);
-    console.log('Decoded token:', decoded);
+    req.user = {
+      userId: decoded.userId,
+      role: decoded.role
+    };
     
-    if (!decoded.userId) {
-      return res.status(401).json({ message: 'Invalid token structure' });
-    }
-
-    req.user = decoded;
-    console.log('Setting user in request:', req.user);
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
-    res.status(401).json({ 
-      message: 'Authentication failed', 
-      error: error.message,
-      details: error.name === 'JsonWebTokenError' ? 'Invalid token' : 'Token validation failed'
+    return res.status(401).json({
+      message: 'Authentication failed',
+      error: error.message
     });
   }
 };
-
-module.exports = auth;

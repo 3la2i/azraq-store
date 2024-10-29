@@ -126,7 +126,7 @@ const ProductDetails = () => {
               <div className="flex items-center mb-6">
                 <Clock className="text-gray-400 mr-2" size={20} />
                 <span className="text-gray-600 text-lg">
-                  {product.isAvailable ? 'In Stock' : 'Out of Stock'}
+                  {product.isAvailable ? 'In Stock' : ''}
                 </span>
               </div>
               <button 

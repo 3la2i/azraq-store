@@ -84,7 +84,7 @@ const RestaurantGrid = () => {
   return (
     <div className="bg-red-50 min-h-screen py-12">
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-center mb-8 text-red-600">مطاعم شهية في الأردن</h1>
+        <h1 className="text-4xl font-bold text-center mb-8 text-red-600">مطاعم شهية في الازرق</h1>
         
         <div className="mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="relative w-full md:w-1/2">

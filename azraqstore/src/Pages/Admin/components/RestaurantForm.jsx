@@ -98,6 +98,7 @@ const RestaurantForm = ({ onSubmit, initialData, onCancel, categories }) => {
       });
     }
   };
+  
 
   return (
     <>
