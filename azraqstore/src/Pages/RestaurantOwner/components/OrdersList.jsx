@@ -91,7 +91,7 @@ const OrdersList = ({ orders, onOrderUpdated }) => {
 
             {/* Overall Order Status */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Order Status</label>
+              {/* <label className="block text-sm font-medium text-gray-700">Order Status</label>
               <select
                 value={order.status}
                 onChange={(e) => handleStatusUpdate(order._id, e.target.value, 'status')}
@@ -104,7 +104,7 @@ const OrdersList = ({ orders, onOrderUpdated }) => {
                 <option value="on the way">On the Way</option>
                 <option value="delivered">Delivered</option>
                 <option value="cancelled">Cancelled</option>
-              </select>
+              </select> */}
             </div>
           </div>
         </div>

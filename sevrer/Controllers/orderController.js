@@ -292,27 +292,39 @@ exports.getDriverOrders = async (req, res) => {
     const activeOrder = await Order.findOne({
       driver: req.user.id,
       status: { $in: ['accepted', 'on the way'] }
-    }).populate({
+    })
+    .populate({
       path: 'items.product',
       populate: {
         path: 'restaurant',
         model: 'Restaurant',
         select: 'name address phoneNumber'
       }
-    }).select('_id total status firstName lastName deliveryAddress items paymentMethod');
+    })
+    .populate('restaurant')
+    .select('_id total status restaurantStatus firstName lastName deliveryAddress items paymentMethod restaurant')
+    .lean();
 
     const availableOrders = await Order.find({
       status: 'pending',
       driver: { $exists: false }
-    }).populate({
+    })
+    .populate({
       path: 'items.product',
       populate: {
         path: 'restaurant',
         model: 'Restaurant',
         select: 'name address phoneNumber'
       }
-    }).select('_id total status firstName lastName deliveryAddress items paymentMethod')
+    })
+    .populate('restaurant')
+    .select('_id total status restaurantStatus firstName lastName deliveryAddress items paymentMethod restaurant')
+    .lean()
     .sort({ createdAt: -1 });
+
+    // Debug logs
+    console.log('Active Order Status:', activeOrder?.restaurantStatus);
+    console.log('Available Orders Status:', availableOrders.map(order => order.restaurantStatus));
 
     res.json({
       activeOrder: activeOrder,

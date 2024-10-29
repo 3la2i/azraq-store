@@ -51,11 +51,20 @@ const DriverOrdersPage = () => {
     <div key={order._id} className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
       <div className="bg-red-100 px-4 py-3 flex justify-between items-center">
         <span className="text-lg font-semibold">Order #{order._id.slice(-6)}</span>
-        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-          getStatusColor(order.status)
-        }`}>
-          {order.status}
-        </span>
+        <div className="flex gap-2">
+          {/* Restaurant Status Badge */}
+          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+            getRestaurantStatusColor(order.restaurantStatus)
+          }`}>
+            Restaurant: {order.restaurantStatus}
+          </span>
+          {/* Delivery Status Badge */}
+          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+            getStatusColor(order.status)
+          }`}>
+            Delivery: {order.status}
+          </span>
+        </div>
       </div>
       <div className="p-4">
         <div className="space-y-6">
@@ -200,6 +209,21 @@ const DriverOrdersPage = () => {
       case 'on the way':
         return 'bg-purple-200 text-purple-800';
       case 'delivered':
+        return 'bg-green-200 text-green-800';
+      default:
+        return 'bg-gray-200 text-gray-800';
+    }
+  };
+
+  const getRestaurantStatusColor = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-200 text-yellow-800';
+      case 'received':
+        return 'bg-blue-200 text-blue-800';
+      case 'preparing':
+        return 'bg-orange-200 text-orange-800';
+      case 'ready':
         return 'bg-green-200 text-green-800';
       default:
         return 'bg-gray-200 text-gray-800';

@@ -25,6 +25,7 @@ const updateProfile = async (req, res) => {
       userId,
       { 
         name, 
+        
         email, 
         phoneNumber, 
         location,

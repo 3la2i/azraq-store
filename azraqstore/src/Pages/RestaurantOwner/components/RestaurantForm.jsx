@@ -157,7 +157,7 @@ const RestaurantForm = ({ onSubmit, initialData }) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+              {/* <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
               <input
                 type="text"
                 value={formData.address.state}
@@ -167,9 +167,9 @@ const RestaurantForm = ({ onSubmit, initialData }) => {
                 })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                 required
-              />
+              /> */}
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Zip Code</label>
               <input
                 type="text"
@@ -181,7 +181,7 @@ const RestaurantForm = ({ onSubmit, initialData }) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                 required
               />
-            </div>
+            </div> */}
           </div>
         </div>
 
