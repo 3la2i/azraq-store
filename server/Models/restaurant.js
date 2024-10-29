@@ -29,11 +29,11 @@ const restaurantSchema = new Schema({
     },
     state: {
       type: String,
-      required: true
+      required: false
     },
     zipCode: {
       type: String,
-      required: true
+      required: false
     }
   },
   cuisine: [{

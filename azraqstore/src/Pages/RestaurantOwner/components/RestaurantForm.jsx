@@ -166,7 +166,7 @@ const RestaurantForm = ({ onSubmit, initialData }) => {
                   address: { ...formData.address, state: e.target.value }
                 })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                required
+                
               />
             </div>
             <div>
@@ -179,7 +179,7 @@ const RestaurantForm = ({ onSubmit, initialData }) => {
                   address: { ...formData.address, zipCode: e.target.value }
                 })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                required
+                
               />
             </div>
           </div>
