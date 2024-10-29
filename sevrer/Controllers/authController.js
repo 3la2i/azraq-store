@@ -38,7 +38,7 @@ const register = async (req, res) => {
     // Create token
     const token = jwt.sign(
       { userId: user._id, role: user.role },
-      'your_jwt_secret',
+      'alaa',
       { expiresIn: '24h' }
     );
 
@@ -77,7 +77,7 @@ const login = async (req, res) => {
     // Create token
     const token = jwt.sign(
       { userId: user._id, role: user.role },
-      'your_jwt_secret',
+      'alaa',
       { expiresIn: '24h' }
     );
 
@@ -113,7 +113,7 @@ const driverLogin = async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id, role: user.role },
-      'your_jwt_secret',
+      'alaa',
       { expiresIn: '24h' }
     );
 
