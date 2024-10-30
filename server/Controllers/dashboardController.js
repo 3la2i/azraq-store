@@ -30,3 +30,56 @@ exports.getDashboardStats = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+exports.getProfits = async (req, res) => {
+  try {
+    const ADMIN_COMMISSION = 0.07; // 7% commission
+
+    const restaurantProfits = await Restaurant.aggregate([
+      {
+        $lookup: {
+          from: 'orders',
+          localField: '_id',
+          foreignField: 'restaurant',
+          as: 'orders'
+        }
+      },
+      {
+        $project: {
+          name: 1,
+          totalOrders: { $size: '$orders' },
+          totalSales: {
+            $reduce: {
+              input: '$orders',
+              initialValue: 0,
+              in: { $add: ['$$value', { $ifNull: ['$$this.total', 0] }] }
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          adminProfit: { 
+            $multiply: ['$totalSales', ADMIN_COMMISSION] 
+          }
+        }
+      },
+      {
+        $sort: { totalSales: -1 }
+      }
+    ]);
+
+    const totalProfit = restaurantProfits.reduce(
+      (sum, restaurant) => sum + restaurant.adminProfit,
+      0
+    );
+
+    res.json({
+      restaurantProfits,
+      totalProfit
+    });
+  } catch (error) {
+    console.error('Error calculating profits:', error);
+    res.status(500).json({ message: 'Error calculating profits' });
+  }
+};

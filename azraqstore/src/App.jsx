@@ -1,37 +1,3 @@
-// import React from 'react'
-// import { Routes, Route, useLocation } from "react-router-dom"
-// import Navbar from "./components/Navbar/Navbar"
-// import Footer from "./components/Footer/Footer"
-// import Admin from "./Pages/Admin/Admin"
-// import Restaurants from "./Pages/Admin/Restaurants"
-// import Products from "./Pages/Admin/Products"
-// import Drivers from "./Pages/Admin/Drivers"
-// import AllUsers from "./Pages/Admin/AllUsers"
-// // ... other imports
-
-// const App = () => {
-//   const location = useLocation()
-
-//   return (
-//     <div className="app">
-//       <Navbar />
-//       <Routes>
-//         <Route path="/admin" element={<Admin />}>
-//           <Route path="restaurants" element={<Restaurants />} />
-//           <Route path="products" element={<Products />} />
-//           <Route path="drivers" element={<Drivers />} />
-//           <Route path="users" element={<AllUsers />} />
-//         </Route>
-//         {/* ... other routes */}
-//       </Routes>
-//       {location.pathname !== "/admin" && <Footer />}
-//     </div>
-//   )
-// }
-
-// export default App
-
-
 import Navbar from "./components/Navbar/Navbar";
 import "./App.css";
 import { Routes, Route, useLocation } from "react-router-dom";
@@ -65,6 +31,9 @@ import RestaurantOwnerDashboard from "./Pages/RestaurantOwner/Dashboard";
 import RestaurantOwnerRegister from "./components/auth/RestaurantOwnerRegister";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+// First import the Profit component at the top
+import Profit from "./Pages/Admin/components/Profit";
+
 const App = () => {
   const location = useLocation();
 
@@ -77,6 +46,7 @@ const App = () => {
           <Route path="products" element={<Products />} />
           <Route path="drivers" element={<Drivers />} />
           <Route path="users" element={<AllUsers />} />
+          <Route path="profit" element={<Profit />} />
         </Route>
         <Route path="/" element={<LandingPage />} />
         <Route path="/cart" element={<Cart />} />

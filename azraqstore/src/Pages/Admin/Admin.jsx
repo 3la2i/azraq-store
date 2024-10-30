@@ -25,10 +25,11 @@ const Admin = () => {
 
   const menuItems = [
     { path: '/admin', icon: Home, label: 'Dashboard' },
-    { path: '/admin/restaurants', icon: Utensils, label: 'Restaurants' },
-    { path: '/admin/products', icon: ShoppingBag, label: 'Products' },
+    // { path: '/admin/restaurants', icon: Utensils, label: 'Restaurants' },
+    // { path: '/admin/products', icon: ShoppingBag, label: 'Products' },
     { path: '/admin/drivers', icon: Truck, label: 'Drivers' },
     { path: '/admin/users', icon: Users, label: 'Users' },
+    { path: '/admin/profit', icon: DollarSign, label: 'Profit' },
   ]
 
   const handleLogout = () => {
