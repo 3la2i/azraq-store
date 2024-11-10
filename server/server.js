@@ -29,6 +29,9 @@ const userRoutes = require('./Routes/userRoutes');
 const dashboardRoutes = require('./Routes/dashboardRoutes');
 const restaurantOwnerRoutes = require('./Routes/restaurantOwnerRoutes');
 
+// Import auth middleware
+
+
 // Basic middleware
 app.use(express.json());
 app.use(cors());
@@ -78,6 +81,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/contactus', contactRoutes);
+app.use('/api/admin',  require('./Routes/adminRoutes'));
 
 // Base route
 app.get('/', (req, res) => {

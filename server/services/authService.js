@@ -29,37 +29,53 @@ const login = async (email, password) => {
   
   const user = await User.findOne({ email });
   if (!user) {
-    throw new Error('Invalid login credentials first');
+    throw new Error('Invalid login credentials');
   }
   // console.log({hashed: user.password, plain: password});
 
   const isPasswordMatch = await bcrypt.compare(password, user.password);
   if (!isPasswordMatch) {
-    throw new Error('Invalid login credentials second');
+    throw new Error('Invalid login credentials');
   }
 
-  const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+  // Include role in token payload
+  const token = jwt.sign(
+    { 
+      userId: user._id,
+      role: user.role  // Add this line
+    }, 
+    JWT_SECRET, 
+    { expiresIn: '1h' }
+  );
 
   return { user, token };
 };
 
 const auth = async (req, res, next) => {
   try {
-    console.log('Auth headers:', req.headers); // Add this line
+    console.log('Auth headers:', req.headers);
     const token = req.header('Authorization').replace('Bearer ', '');
-    console.log('Extracted token:', token); // Add this line
+    console.log('Token:', token);
     const decoded = jwt.verify(token, JWT_SECRET);
+    console.log('Decoded token:', decoded);
+    
     const user = await User.findOne({ _id: decoded.userId });
+    console.log('Found user:', user);
 
     if (!user) {
-      throw new Error();
+      throw new Error('User not found');
+    }
+
+    if (user.role !== 'admin') {
+      console.log('User role:', user.role);
+      return res.status(403).json({ message: 'Access denied. Admin rights required.' });
     }
 
     req.user = user;
     next();
   } catch (error) {
-    console.error('Auth error:', error); // Add this line
-    res.status(401).send({ error: 'Please authenticate.' });
+    console.error('Auth error:', error);
+    res.status(401).json({ message: 'Please authenticate.' });
   }
 };
 

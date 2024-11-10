@@ -33,6 +33,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 // First import the Profit component at the top
 import Profit from "./Pages/Admin/components/Profit";
+import RestaurantManagement from "./Pages/Admin/components/RestaurantManagement";
 
 const App = () => {
   const location = useLocation();
@@ -47,6 +48,7 @@ const App = () => {
           <Route path="drivers" element={<Drivers />} />
           <Route path="users" element={<AllUsers />} />
           <Route path="profit" element={<Profit />} />
+          <Route path="restaurant-management" element={<RestaurantManagement />} />
         </Route>
         <Route path="/" element={<LandingPage />} />
         <Route path="/cart" element={<Cart />} />
