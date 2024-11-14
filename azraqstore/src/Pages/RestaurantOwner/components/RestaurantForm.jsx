@@ -38,7 +38,7 @@ const RestaurantForm = ({ onSubmit, initialData }) => {
     
     formDataToSend.append('name', formData.name);
     formDataToSend.append('description', formData.description);
-    formDataToSend.append('rating', formData.rating);
+    formDataToSend.append('rating', formData.rating.toString());
     formDataToSend.append('address', JSON.stringify(formData.address));
     formDataToSend.append('openingHours', JSON.stringify(formData.openingHours));
     formDataToSend.append('cuisine', JSON.stringify(formData.cuisine));

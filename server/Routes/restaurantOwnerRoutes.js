@@ -50,4 +50,7 @@ router.get('/products', restaurantOwnerController.getProducts);
 router.post('/products', upload.single('image'), restaurantOwnerController.addProduct);
 router.delete('/products/:id', restaurantOwnerController.deleteProduct);
 
+// Toggle status route
+router.put('/toggle-status', restaurantOwnerController.toggleOnlineStatus);
+
 module.exports = router;

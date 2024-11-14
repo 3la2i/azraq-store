@@ -15,9 +15,13 @@ const Notifications = () => {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('token');
+      console.log('Fetching notifications with token:', token);
+      
       const response = await axios.get('http://localhost:5000/api/orders/notifications', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
+      console.log('Received notifications:', response.data);
       setNotifications(response.data);
     } catch (error) {
       console.error('Error fetching notifications:', error.response?.data || error.message);

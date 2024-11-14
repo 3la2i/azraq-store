@@ -9,16 +9,25 @@ const Notification = require('../Models/notification');
 const createNotification = async (userId, orderId, message, type) => {
   try {
     console.log('Creating notification:', { userId, orderId, message, type });
+    
+    if (!userId) {
+      console.error('Cannot create notification: userId is undefined');
+      return;
+    }
+
     const notification = new Notification({
       user: userId,
       order: orderId,
       message: message,
       type: type
     });
+
     const savedNotification = await notification.save();
-    console.log('Notification created:', savedNotification);
+    console.log('Notification created successfully:', savedNotification);
+    return savedNotification;
   } catch (error) {
     console.error('Error creating notification:', error);
+    throw error; // Propagate the error to handle it in the calling function
   }
 };
 
@@ -126,11 +135,13 @@ exports.getAvailableOrders = async (req, res) => {
 
 exports.acceptOrder = async (req, res) => {
   try {
-    const driverId = req.user.id;
+    const driverId = req.user.userId;
     const isAvailable = await checkDriverAvailability(driverId);
 
     if (!isAvailable) {
-      return res.status(400).json({ message: 'You already have an active order. Complete it before accepting a new one.' });
+      return res.status(400).json({ 
+        message: 'You already have an active order. Complete it before accepting a new one.' 
+      });
     }
 
     const order = await Order.findByIdAndUpdate(
@@ -143,12 +154,24 @@ exports.acceptOrder = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    await createNotification(
-      order.user._id,
-      order._id,
-      'Your order has been accepted by a driver.',
-      'order_accepted'
-    );
+    console.log('Order found:', {
+      orderId: order._id,
+      userId: order.user._id,
+      status: order.status
+    });
+
+    // Create notification for the customer
+    try {
+      await createNotification(
+        order.user._id,
+        order._id,
+        'A driver has accepted your order and will pick it up soon.',
+        'order_accepted'
+      );
+    } catch (notificationError) {
+      console.error('Failed to create notification:', notificationError);
+      // Continue with the response even if notification fails
+    }
 
     res.json(order);
   } catch (error) {
@@ -164,15 +187,19 @@ exports.startDelivery = async (req, res) => {
       { $set: { status: 'on the way' } },
       { new: true }
     ).populate('user', '_id');
+
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
+
+    // Create notification for the customer
     await createNotification(
       order.user._id,
       order._id,
-      'Your order is on the way!',
+      'Your order is on the way! The driver has picked up your order.',
       'order_on_the_way'
     );
+
     res.json(order);
   } catch (error) {
     console.error('Error starting delivery:', error);
@@ -187,15 +214,19 @@ exports.completeDelivery = async (req, res) => {
       { $set: { status: 'delivered' } },
       { new: true }
     ).populate('user', '_id');
+
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
+
+    // Create notification for the customer
     await createNotification(
       order.user._id,
       order._id,
-      'Your order has been delivered. Enjoy your meal!',
+      'Your order has been delivered! Enjoy your meal.',
       'order_delivered'
     );
+
     res.json(order);
   } catch (error) {
     console.error('Error completing delivery:', error);
@@ -363,11 +394,12 @@ exports.rejectOrder = async (req, res) => {
 // Add a new function to get user notifications
 exports.getUserNotifications = async (req, res) => {
   try {
-    console.log('Fetching notifications for user:', req.user);
-    const notifications = await Notification.find({ user: req.user.id })
+    console.log('Fetching notifications for user:', req.user.userId);
+    const notifications = await Notification.find({ user: req.user.userId })
       .sort({ createdAt: -1 })
       .limit(10);
-    console.log('Notifications found:', notifications);
+    
+    console.log('Found notifications:', notifications);
     res.json(notifications);
   } catch (error) {
     console.error('Error fetching notifications:', error);
@@ -379,15 +411,20 @@ exports.getUserNotifications = async (req, res) => {
 exports.deleteNotification = async (req, res) => {
   try {
     const notificationId = req.params.id;
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     console.log(`Attempting to delete notification: ${notificationId} for user: ${userId}`);
 
-    const result = await Notification.findOneAndDelete({ _id: notificationId, user: userId });
+    const result = await Notification.findOneAndDelete({ 
+      _id: notificationId, 
+      user: userId 
+    });
 
     if (!result) {
       console.log(`Notification not found or user doesn't have permission`);
-      return res.status(404).json({ message: 'Notification not found or you do not have permission to delete it' });
+      return res.status(404).json({ 
+        message: 'Notification not found or you do not have permission to delete it' 
+      });
     }
 
     console.log(`Notification deleted successfully`);

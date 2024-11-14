@@ -69,6 +69,28 @@ const Dashboard = () => {
     }
   };
 
+  const toggleOnlineStatus = async () => {
+    try {
+      console.log('Attempting to toggle online status:', !restaurant.isOnline);
+      
+      const response = await axios.put(
+        'http://localhost:5000/api/restaurant-owner/toggle-status',
+        { isOnline: !restaurant.isOnline },
+        {
+          headers: { 
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      
+      console.log('Toggle status response:', response.data);
+      setRestaurant(response.data);
+    } catch (error) {
+      console.error('Error toggling online status:', error.response || error);
+      alert(error.response?.data?.message || 'Error updating restaurant status');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-red-50">
@@ -90,7 +112,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-red-50 py-12">
+    <div className="min-h-screen bg-red-50 py-8">
       <div className="container mx-auto px-4">
         <h1 className="text-4xl font-bold text-red-600 mb-8 text-center">Restaurant Dashboard</h1>
         
@@ -134,7 +156,50 @@ const Dashboard = () => {
           </nav>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {restaurant && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md">
+                <div>
+                  <h3 className="font-semibold text-gray-800">Restaurant Status</h3>
+                  <p className="text-sm text-gray-600">
+                    {!restaurant.isActive ? (
+                      <span className="text-yellow-600">Pending Admin Approval</span>
+                    ) : (
+                      <span className={restaurant.isOnline ? "text-green-600" : "text-red-600"}>
+                        {restaurant.isOnline ? 'Online' : 'Offline'}
+                      </span>
+                    )}
+                  </p>
+                </div>
+                {restaurant.isActive && (
+                  <button
+                    onClick={toggleOnlineStatus}
+                    className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                      restaurant.isOnline 
+                        ? 'bg-green-500 hover:bg-green-600 text-white'
+                        : 'bg-gray-500 hover:bg-gray-600 text-white'
+                    }`}
+                  >
+                    {restaurant.isOnline ? 'Go Offline' : 'Go Online'}
+                  </button>
+                )}
+              </div>
+              {!restaurant.isActive && (
+                <div className="mt-4 bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                  <div className="flex">
+                    <AlertCircle className="h-5 w-5 text-yellow-400" />
+                    <div className="ml-3">
+                      <p className="text-sm text-yellow-700">
+                        Your restaurant is pending approval from an administrator. You will be notified once it is approved.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === 'restaurant' && (
             <div>
               {restaurant ? (

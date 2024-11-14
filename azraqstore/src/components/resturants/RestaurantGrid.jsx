@@ -36,7 +36,10 @@ const RestaurantGrid = () => {
     const fetchRestaurants = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/restaurants/getResturant');
-        setRestaurants(response.data);
+        const availableRestaurants = response.data.filter(restaurant => 
+          restaurant.isActive && restaurant.isOnline
+        );
+        setRestaurants(availableRestaurants);
       } catch (error) {
         console.error('Error fetching restaurants:', error);
       }

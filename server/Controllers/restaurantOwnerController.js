@@ -64,6 +64,7 @@ exports.createRestaurant = async (req, res) => {
       name: req.body.name,
       description: req.body.description,
       owner: req.user.userId,
+      isActive: false,
     };
 
     // Handle complex fields
@@ -121,7 +122,8 @@ exports.updateRestaurant = async (req, res) => {
       description: req.body.description,
       address,
       openingHours,
-      cuisine
+      cuisine,
+      rating: parseFloat(req.body.rating)
     };
 
     if (req.file) {
@@ -349,6 +351,43 @@ exports.updateOrderStatus = async (req, res) => {
     console.error('updateOrderStatus error:', error);
     res.status(500).json({ 
       message: 'Error updating order status', 
+      error: error.message 
+    });
+  }
+};
+
+// Add this new controller method
+exports.toggleOnlineStatus = async (req, res) => {
+  try {
+    const { isOnline } = req.body;
+    
+    // Add logging to debug
+    console.log('Toggle online status request:', {
+      userId: req.user.userId,
+      isOnline: isOnline
+    });
+    
+    const restaurant = await Restaurant.findOneAndUpdate(
+      { owner: req.user.userId },
+      { isOnline },
+      { new: true }
+    );
+
+    if (!restaurant) {
+      console.log('Restaurant not found for user:', req.user.userId);
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+
+    console.log('Restaurant status updated:', {
+      restaurantId: restaurant._id,
+      isOnline: restaurant.isOnline
+    });
+
+    res.json(restaurant);
+  } catch (error) {
+    console.error('toggleOnlineStatus error:', error);
+    res.status(500).json({ 
+      message: 'Error updating online status', 
       error: error.message 
     });
   }

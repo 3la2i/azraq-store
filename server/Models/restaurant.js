@@ -58,6 +58,10 @@ const restaurantSchema = new Schema({
   },
   isActive: {
     type: Boolean,
+    default: false
+  },
+  isOnline: {
+    type: Boolean,
     default: true
   }
 }, {
