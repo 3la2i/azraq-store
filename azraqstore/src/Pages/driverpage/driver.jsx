@@ -86,94 +86,111 @@ const DriverOrdersPage = () => {
         </div>
       </div>
       {expandedOrder === order._id && (
-        <div className="p-4">
-          <div className="space-y-6">
-            {/* Order Summary */}
-            <div className="bg-gray-50 p-4 rounded-md">
-              <h3 className="text-lg font-semibold mb-2">Order Summary</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex items-center">
-                  <DollarSign className="h-5 w-5 text-red-500 mr-2" />
-                  <span className="font-medium">Total: ${order.total?.toFixed(2) || '0.00'}</span>
-                </div>
-                <div className="flex items-center">
-                  <CreditCard className="h-5 w-5 text-red-500 mr-2" />
-                  <span>{order.paymentMethod === 'cash' ? 'Cash on Delivery' : 'PayPal'}</span>
-                </div>
+        <div className="p-4 space-y-4">
+          {/* Order Summary */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h3 className="text-lg font-semibold mb-2">Order Summary</h3>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center">
+                <DollarSign className="h-5 w-5 text-red-500 mr-2" />
+                <span className="font-medium">Total: ${order.total?.toFixed(2) || '0.00'}</span>
+              </div>
+              <div className="flex items-center">
+                <CreditCard className="h-5 w-5 text-red-500 mr-2" />
+                <span>{order.paymentMethod === 'cash' ? 'Cash on Delivery' : 'PayPal'}</span>
               </div>
             </div>
+          </div>
 
-            {/* Customer Information */}
-            <div className="bg-gray-50 p-4 rounded-md">
-              <h3 className="text-lg font-semibold mb-2">Customer Information</h3>
+          {/* Customer Information */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h3 className="text-lg font-semibold mb-2">Customer Information</h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <p><span className="font-medium">First Name:</span> {order.firstName}</p>
+                <p><span className="font-medium">Last Name:</span> {order.lastName}</p>
+                <p><span className="font-medium">Email:</span> {order.email}</p>
+                <p><span className="font-medium">Phone:</span> {order.phone}</p>
+              </div>
+
+              {/* Debug log */}
+              {console.log('Full order object:', order)}
+              {console.log('Info field type:', typeof order.info)}
+              {console.log('Info field value:', order.info)}
+              
+              {/* Modified Additional Info section */}
+              {order.info && order.info.length > 0 && (
+                <div className="mt-4 bg-white p-3 rounded-md border border-gray-200">
+                  <p className="font-medium text-red-600">Additional Information:</p>
+                  <p className="text-gray-700 mt-1">{order.info}</p>
+                </div>
+              )}
+
+              {order.deliveryAddress && (
+                <div className="flex items-start mt-4">
+                  <MapPin className="h-5 w-5 text-red-500 mr-2 mt-1" />
+                  <div>
+                    <p className="font-medium">Delivery Address:</p>
+                    <p>{order.deliveryAddress.street || 'N/A'}</p>
+                    <p>
+                      {[
+                        order.deliveryAddress.city,
+                        order.deliveryAddress.state,
+                        order.deliveryAddress.zipCode
+                      ].filter(Boolean).join(', ') || 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Order Items */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h3 className="text-lg font-semibold mb-2">Order Items</h3>
+            <ul className="space-y-2">
+              {order.items?.map((item, index) => (
+                <li key={index} className="flex justify-between items-center">
+                  <span>{item.quantity}x {item.product?.name || 'Unknown Product'}</span>
+                  <span className="font-medium">${((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Restaurant Information */}
+          {order.items?.[0]?.product?.restaurant && (
+            <div className="bg-gray-50 p-4 rounded-md border-l-4 border-red-500">
+              <h3 className="text-xl font-semibold mb-2 text-red-600">Restaurant Information</h3>
               <div className="space-y-2">
-                <p><span className="font-medium">Name:</span> {order.firstName} {order.lastName}</p>
-                {order.deliveryAddress && (
+                <p className="text-lg">
+                  <span className="font-medium">Name:</span> {order.items[0].product.restaurant.name}
+                </p>
+                {order.items[0].product.restaurant.address && (
                   <div className="flex items-start">
                     <MapPin className="h-5 w-5 text-red-500 mr-2 mt-1" />
                     <div>
-                      <p className="font-medium">Delivery Address:</p>
-                      <p>{order.deliveryAddress.street || 'N/A'}</p>
+                      <p className="font-medium">Address:</p>
+                      <p>{order.items[0].product.restaurant.address.street || 'N/A'}</p>
                       <p>
                         {[
-                          order.deliveryAddress.city,
-                          order.deliveryAddress.state,
-                          order.deliveryAddress.zipCode
+                          order.items[0].product.restaurant.address.city,
+                          order.items[0].product.restaurant.address.state,
+                          order.items[0].product.restaurant.address.zipCode
                         ].filter(Boolean).join(', ') || 'N/A'}
                       </p>
                     </div>
                   </div>
                 )}
-              </div>
-            </div>
-
-            {/* Order Items */}
-            <div className="bg-gray-50 p-4 rounded-md">
-              <h3 className="text-lg font-semibold mb-2">Order Items</h3>
-              <ul className="space-y-2">
-                {order.items?.map((item, index) => (
-                  <li key={index} className="flex justify-between items-center">
-                    <span>{item.quantity}x {item.product?.name || 'Unknown Product'}</span>
-                    <span className="font-medium">${((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Restaurant Information */}
-            {order.items?.[0]?.product?.restaurant && (
-              <div className="bg-gray-50 p-4 rounded-md border-l-4 border-red-500">
-                <h3 className="text-xl font-semibold mb-2 text-red-600">Restaurant Information</h3>
-                <div className="space-y-2">
-                  <p className="text-lg">
-                    <span className="font-medium">Name:</span> {order.items[0].product.restaurant.name}
-                  </p>
-                  {order.items[0].product.restaurant.address && (
-                    <div className="flex items-start">
-                      <MapPin className="h-5 w-5 text-red-500 mr-2 mt-1" />
-                      <div>
-                        <p className="font-medium">Address:</p>
-                        <p>{order.items[0].product.restaurant.address.street || 'N/A'}</p>
-                        <p>
-                          {[
-                            order.items[0].product.restaurant.address.city,
-                            order.items[0].product.restaurant.address.state,
-                            order.items[0].product.restaurant.address.zipCode
-                          ].filter(Boolean).join(', ') || 'N/A'}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex items-center">
-                    <Phone className="h-5 w-5 text-red-500 mr-2" />
-                    <span>{order.items[0].product.restaurant.phoneNumber || 'N/A'}</span>
-                  </div>
+                <div className="flex items-center">
+                  <Phone className="h-5 w-5 text-red-500 mr-2" />
+                  <span>{order.items[0].product.restaurant.phoneNumber || 'N/A'}</span>
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
-            {renderOrderActions(order)}
-          </div>
+          {renderOrderActions(order)}
         </div>
       )}
     </div>

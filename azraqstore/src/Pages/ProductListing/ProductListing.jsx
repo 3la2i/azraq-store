@@ -28,7 +28,14 @@ const ProductListing = () => {
       const user = JSON.parse(localStorage.getItem('user'));
       const product = products.find(p => p._id === productId);
       
-      if (cartRestaurant && cartRestaurant !== product.restaurant._id) {
+      // Add the new item to cart
+      const response = await axios.post('http://localhost:5000/api/cart/add', {
+        userId: user._id,
+        productId: productId,
+        quantity: 1
+      });
+
+      if (response.data.differentRestaurant) {
         const result = await Swal.fire({
           title: 'Different Restaurant',
           text: 'Your cart contains items from a different restaurant. Do you want to clear your cart and add this item?',
@@ -42,14 +49,14 @@ const ProductListing = () => {
           return;
         }
 
+        // Clear cart and add new item
         await axios.post(`http://localhost:5000/api/cart/${user._id}/clear`);
+        await axios.post('http://localhost:5000/api/cart/add', {
+          userId: user._id,
+          productId: productId,
+          quantity: 1
+        });
       }
-
-      await axios.post('http://localhost:5000/api/cart/add', {
-        userId: user._id,
-        productId: productId,
-        quantity: 1
-      });
       
       fetchCartRestaurant();
       Swal.fire({
@@ -60,11 +67,13 @@ const ProductListing = () => {
       });
     } catch (error) {
       console.error('Error adding to cart:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to add product to cart.';
       Swal.fire({
-        title: 'Error!',
-        text: 'Failed to add product to cart.',
+        title: 'Cannot Add Product',
+        text: 'You can only add products from one restaurant at a time. Please clear your cart first if you want to order from a different restaurant.',
         icon: 'error',
-        confirmButtonText: 'OK'
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#EF4444',
       });
     }
   };

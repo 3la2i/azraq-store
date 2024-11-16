@@ -43,9 +43,9 @@ const checkDriverAvailability = async (driverId) => {
 exports.createOrder = async (req, res) => {
   try {
     console.log('Received order data:', req.body);
-    const { userId, items, total, deliveryAddress, firstName, lastName, email, phone, paymentMethod, paymentDetails } = req.body;
+    const { userId, items, total, deliveryAddress, firstName, lastName, email, phone, info, paymentMethod, paymentDetails } = req.body;
 
-    console.log('Payment method:', paymentMethod); // For debugging
+    console.log('Creating order with info:', info);
 
     if (!userId || !items || !Array.isArray(items) || items.length === 0 || !total || !deliveryAddress || !firstName || !lastName || !email || !phone || !paymentMethod) {
       console.log('Validation failed:', { userId, items, total, deliveryAddress, firstName, lastName, email, phone, paymentMethod });
@@ -72,11 +72,16 @@ exports.createOrder = async (req, res) => {
       lastName,
       email,
       phone,
+      info: info || '',
       restaurant: firstProduct.restaurant._id,
       paymentMethod
     });
 
+    console.log('New order object:', JSON.stringify(newOrder, null, 2));
+
     await newOrder.save();
+
+    console.log('Saved order:', JSON.stringify(newOrder.toObject(), null, 2));
 
     // Create payment record
     const newPayment = new Payment({
@@ -318,7 +323,6 @@ exports.getRestaurantOrders = async (req, res) => {
 // Add these new controller methods
 
 exports.getDriverOrders = async (req, res) => {
-  console.log('getDriverOrders function called');
   try {
     const activeOrder = await Order.findOne({
       driver: req.user.id,
@@ -333,8 +337,11 @@ exports.getDriverOrders = async (req, res) => {
       }
     })
     .populate('restaurant')
-    .select('_id total status restaurantStatus firstName lastName deliveryAddress items paymentMethod restaurant')
+    .select('_id total status restaurantStatus firstName lastName email phone info deliveryAddress items paymentMethod restaurant')
     .lean();
+
+    console.log('Raw active order data:', activeOrder);
+    console.log('Info field from active order:', activeOrder?.info);
 
     const availableOrders = await Order.find({
       status: 'pending',
@@ -349,13 +356,13 @@ exports.getDriverOrders = async (req, res) => {
       }
     })
     .populate('restaurant')
-    .select('_id total status restaurantStatus firstName lastName deliveryAddress items paymentMethod restaurant')
-    .lean()
-    .sort({ createdAt: -1 });
+    .select('_id total status restaurantStatus firstName lastName email phone info deliveryAddress items paymentMethod restaurant')
+    .lean();
 
-    // Debug logs
-    console.log('Active Order Status:', activeOrder?.restaurantStatus);
-    console.log('Available Orders Status:', availableOrders.map(order => order.restaurantStatus));
+    console.log('Available orders info fields:', availableOrders.map(order => ({
+      orderId: order._id,
+      info: order.info
+    })));
 
     res.json({
       activeOrder: activeOrder,

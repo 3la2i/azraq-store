@@ -57,6 +57,7 @@ const orderSchema = new Schema({
     lastName: String,
     email: String,
     phone: String,
+    info: String,
     driver: { 
         type: Schema.Types.ObjectId, 
         ref: 'User' 

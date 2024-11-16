@@ -6,32 +6,42 @@ exports.addToCart = async (req, res) => {
     try {
         const { userId, productId, quantity } = req.body;
         
+        // Find the product
         const product = await Product.findById(productId).populate('restaurant');
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
 
+        // Find or create cart
         let cart = await Cart.findOne({ user: userId });
-
         if (!cart) {
-            // If cart doesn't exist, create a new one
-            cart = new Cart({ user: userId, restaurant: product.restaurant._id, items: [], total: 0 });
-        } else if (cart.restaurant && cart.restaurant.toString() !== product.restaurant._id.toString()) {
-            // If cart exists but contains items from a different restaurant
+            cart = new Cart({ user: userId, items: [], total: 0 });
+        }
+
+        // Only check for different restaurant if cart has items
+        if (cart.items.length > 0 && cart.restaurant && 
+            cart.restaurant.toString() !== product.restaurant._id.toString()) {
             return res.status(400).json({ 
-                message: 'Your cart contains items from a different restaurant. Please clear your cart before adding items from a new restaurant.' 
+                message: 'Cannot add items from different restaurants',
+                differentRestaurant: true 
             });
         }
 
-        // Check if the product is already in the cart
-        const cartItem = cart.items.find(item => item.product.toString() === productId);
+        // Find if the product already exists in cart
+        const existingItemIndex = cart.items.findIndex(
+            item => item.product.toString() === productId
+        );
 
-        if (cartItem) {
-            // If the product is already in the cart, update the quantity
-            cartItem.quantity += quantity;
+        if (existingItemIndex > -1) {
+            // Update quantity if item exists
+            cart.items[existingItemIndex].quantity += quantity;
         } else {
-            // If it's a new product, add it to the cart
-            cart.items.push({ product: productId, quantity, price: product.price });
+            // Add new item if it doesn't exist
+            cart.items.push({
+                product: productId,
+                quantity: quantity,
+                price: product.price
+            });
         }
 
         // Set the restaurant if it's not set yet
@@ -106,6 +116,45 @@ exports.clearCart = async (req, res) => {
     console.error('Error clearing cart:', error);
     res.status(500).json({ message: 'Server error' });
   }
+};
+
+exports.updateQuantity = async (req, res) => {
+    try {
+        const { userId, productId } = req.params;
+        const { quantity } = req.body;
+
+        // Validate quantity
+        if (quantity < 1) {
+            return res.status(400).json({ message: 'Quantity must be at least 1' });
+        }
+
+        let cart = await Cart.findOne({ user: userId });
+        if (!cart) {
+            return res.status(404).json({ message: 'Cart not found' });
+        }
+
+        // Find the item in the cart
+        const itemIndex = cart.items.findIndex(
+            item => item.product.toString() === productId
+        );
+
+        if (itemIndex === -1) {
+            return res.status(404).json({ message: 'Item not found in cart' });
+        }
+
+        // Update the quantity
+        cart.items[itemIndex].quantity = quantity;
+
+        // Recalculate the total
+        cart.total = cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+        await cart.save();
+
+        res.status(200).json({ message: 'Quantity updated', cart });
+    } catch (error) {
+        console.error('Error updating quantity:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
 };
 
  

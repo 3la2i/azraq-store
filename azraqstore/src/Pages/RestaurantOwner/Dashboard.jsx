@@ -5,7 +5,7 @@ import ProductForm from './components/ProductForm';
 import OrdersList from './components/OrdersList';
 import ProductsList from './components/ProductsList';
 import axios from 'axios';
-import { Store, ShoppingBag, ClipboardList, AlertCircle } from 'lucide-react';
+import { Store, ShoppingBag, ClipboardList, AlertCircle, Menu, X } from 'lucide-react';
 
 const Dashboard = () => {
   const [restaurant, setRestaurant] = useState(null);
@@ -15,6 +15,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     fetchRestaurantData();
@@ -117,40 +118,62 @@ const Dashboard = () => {
         <h1 className="text-4xl font-bold text-red-600 mb-8 text-center">Restaurant Dashboard</h1>
         
         <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-          <nav className="flex">
+          <div className="md:hidden p-4 flex justify-end border-b">
             <button
-              className={`flex-1 py-4 px-6 text-center font-medium ${
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-gray-600 hover:text-red-600 focus:outline-none"
+            >
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
+
+          <nav className={`flex flex-col md:flex-row ${isMenuOpen ? 'block' : 'hidden'} md:flex`}>
+            <button
+              className={`flex items-center justify-center py-4 px-6 text-center font-medium ${
                 activeTab === 'restaurant' 
                   ? 'bg-red-600 text-white' 
                   : 'text-gray-700 hover:bg-red-100'
-              }`}
-              onClick={() => setActiveTab('restaurant')}
+              } border-b md:border-b-0 md:flex-1`}
+              onClick={() => {
+                setActiveTab('restaurant');
+                setIsMenuOpen(false);
+              }}
             >
-              <Store className="w-5 h-5 inline-block mr-2" />
+              <Store className="w-5 h-5 mr-2" />
               Restaurant
             </button>
             <button
-              className={`flex-1 py-4 px-6 text-center font-medium ${
+              className={`flex items-center justify-center py-4 px-6 text-center font-medium ${
                 activeTab === 'products' 
                   ? 'bg-red-600 text-white' 
                   : 'text-gray-700 hover:bg-red-100'
-              }`}
-              onClick={() => setActiveTab('products')}
+              } border-b md:border-b-0 md:flex-1`}
+              onClick={() => {
+                setActiveTab('products');
+                setIsMenuOpen(false);
+              }}
               disabled={!restaurant}
             >
-              <ShoppingBag className="w-5 h-5 inline-block mr-2" />
+              <ShoppingBag className="w-5 h-5 mr-2" />
               Products
             </button>
             <button
-              className={`flex-1 py-4 px-6 text-center font-medium ${
+              className={`flex items-center justify-center py-4 px-6 text-center font-medium ${
                 activeTab === 'orders' 
                   ? 'bg-red-600 text-white' 
                   : 'text-gray-700 hover:bg-red-100'
-              }`}
-              onClick={() => setActiveTab('orders')}
+              } md:flex-1`}
+              onClick={() => {
+                setActiveTab('orders');
+                setIsMenuOpen(false);
+              }}
               disabled={!restaurant}
             >
-              <ClipboardList className="w-5 h-5 inline-block mr-2" />
+              <ClipboardList className="w-5 h-5 mr-2" />
               Orders
             </button>
           </nav>

@@ -3,8 +3,9 @@ import axios from 'axios';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { ShoppingCart, X, CreditCard, DollarSign, Truck } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
-const TableRow = ({ item, removeItem }) => (
+const TableRow = ({ item, removeItem, updateQuantity }) => (
   <tr className="border-b border-gray-200">
     <td className="py-4 px-2">
       <div className="flex items-center">
@@ -13,7 +14,24 @@ const TableRow = ({ item, removeItem }) => (
       </div>
     </td>
     <td className="py-4 px-2 text-center">${item?.price.toFixed(2)}</td>
-    <td className="py-4 px-2 text-center">{item?.quantity}</td> 
+    <td className="py-4 px-2 text-center">
+      <div className="flex items-center justify-center space-x-2">
+        <button 
+          onClick={() => updateQuantity(item?.product?._id, Math.max(1, item.quantity - 1))}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded"
+          disabled={item.quantity <= 1}
+        >
+          -
+        </button>
+        <span className="w-8 text-center">{item?.quantity}</span>
+        <button 
+          onClick={() => updateQuantity(item?.product?._id, item.quantity + 1)}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded"
+        >
+          +
+        </button>
+      </div>
+    </td>
     <td className="py-4 px-2 text-center font-medium">${(item?.price * item?.quantity).toFixed(2)}</td>
     <td className="py-4 px-2 text-center">
       <button onClick={() => removeItem(item?.product?._id)} className="text-red-500 hover:text-red-700 transition-colors">
@@ -37,6 +55,7 @@ const Cart = () => {
   });
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [restaurantName, setRestaurantName] = useState('');
+  const navigate = useNavigate();
 
   const fetchCart = async () => {
     try {
@@ -75,6 +94,7 @@ const Cart = () => {
 
   const handleDeliveryInfoChange = (e) => {
     setDeliveryInfo({ ...deliveryInfo, [e.target.name]: e.target.value });
+    console.log('Updated delivery info:', { ...deliveryInfo, [e.target.name]: e.target.value });
   };
 
   const handlePaymentMethodChange = (e) => {
@@ -106,30 +126,63 @@ const Cart = () => {
   };
 
   const submitOrder = async (paymentData = null) => {
-    if (!cart || !cart.items || cart.items.length === 0) {
-      setError('Your cart is empty. Please add items before submitting an order.');
-      return;
-    }
-
-    const isValidCart = cart.items.every(item => item.product && item.quantity && item.price);
-    if (!isValidCart) {
-      setError('Invalid cart data. Please try refreshing the page.');
-      return;
-    }
-
-    if (!deliveryInfo.firstName || !deliveryInfo.lastName || !deliveryInfo.email || !deliveryInfo.address || !deliveryInfo.phone) {
-      setError('Please fill in all delivery information fields.');
-      return;
-    }
-
     try {
+      // Check for empty cart
+      if (!cart || !cart.items || cart.items.length === 0) {
+        return Swal.fire({
+          title: 'Empty Cart',
+          text: 'Your cart is empty. Please add items before submitting an order.',
+          icon: 'warning',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#EF4444',
+        });
+      }
+
+      // Check for valid cart data
+      const isValidCart = cart.items.every(item => item.product && item.quantity && item.price);
+      if (!isValidCart) {
+        return Swal.fire({
+          title: 'Invalid Cart',
+          text: 'There seems to be an issue with your cart data. Please try refreshing the page.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#EF4444',
+        });
+      }
+
+      // Check for empty delivery information fields
+      const requiredFields = {
+        firstName: 'First Name',
+        lastName: 'Last Name',
+        email: 'Email',
+        address: 'Address',
+        phone: 'Phone Number'
+      };
+
+      const emptyFields = Object.entries(requiredFields)
+        .filter(([key]) => !deliveryInfo[key])
+        .map(([_, label]) => label);
+
+      if (emptyFields.length > 0) {
+        return Swal.fire({
+          title: 'Missing Information',
+          html: `Please fill in the following required fields:<br><br>${emptyFields.join('<br>')}`,
+          icon: 'warning',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#EF4444',
+        });
+      }
+
+      // If all validations pass, show confirmation dialog
       const result = await Swal.fire({
         title: 'Confirm Order',
         text: 'Are you sure you want to submit your order?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Yes, submit order',
-        cancelButtonText: 'Cancel'
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#6B7280',
       });
 
       if (result.isConfirmed) {
@@ -144,30 +197,60 @@ const Cart = () => {
             state: '',
             zipCode: ''
           },
+          firstName: deliveryInfo.firstName,
+          lastName: deliveryInfo.lastName,
+          email: deliveryInfo.email,
+          phone: deliveryInfo.phone,
+          info: deliveryInfo.info,
           paymentMethod: paymentMethod,
-          paymentDetails: paymentData,
-          ...deliveryInfo
+          paymentDetails: paymentData
         };
 
+        console.log('Submitting order with data:', orderData);
         const response = await axios.post('http://localhost:5000/api/orders/createOrder', orderData);
+        
+        // Clear cart after successful order
         setCart(null);
+        
+        // Updated success message
         await Swal.fire({
           title: 'Order Received!',
           text: 'Thank you! Your order will be delivered in 30-45 minutes. Check your profile for order status updates.',
           icon: 'success',
-          confirmButtonText: 'OK'
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#EF4444',
         });
-        // Clear cart and redirect to profile page
-        // Assuming you're using react-router-dom for navigation
-        // navigate('/profile');
+        
+        // Redirect to orders page or home
+        navigate('/orders');
       }
     } catch (error) {
-      console.error('Error submitting order:', error.response?.data || error.message);
+      console.error('Error submitting order:', error);
       Swal.fire({
         title: 'Error',
-        text: 'Failed to submit order. Please try again later.',
+        text: 'Failed to submit your order. Please try again.',
         icon: 'error',
-        confirmButtonText: 'OK'
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#EF4444',
+      });
+    }
+  };
+
+  const updateQuantity = async (productId, newQuantity) => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      await axios.put(`http://localhost:5000/api/cart/${user._id}/update/${productId}`, {
+        quantity: newQuantity
+      });
+      fetchCart(); // Refresh cart data
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to update quantity. Please try again.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#EF4444',
       });
     }
   };
@@ -221,7 +304,12 @@ const Cart = () => {
                     </thead>
                     <tbody>
                       {cart.items.map(item => (
-                        <TableRow key={item.product?._id} item={item} removeItem={removeItem} />
+                        <TableRow 
+                          key={item.product?._id} 
+                          item={item} 
+                          removeItem={removeItem}
+                          updateQuantity={updateQuantity}
+                        />
                       ))}
                     </tbody>
                   </table>
