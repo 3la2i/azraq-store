@@ -69,7 +69,10 @@ const RestaurantGrid = () => {
   };
 
   const filteredRestaurants = restaurants
-    .filter(r => selectedCategory ? r.category === selectedCategory : true)
+    .filter(r => {
+      if (!selectedCategory) return true;
+      return r.cuisine && r.cuisine.includes(selectedCategory);
+    })
     .filter(r => r.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const topRatedRestaurants = restaurants.filter(r => r.rating >= 4.5);
@@ -108,7 +111,7 @@ const RestaurantGrid = () => {
             >
               <option value="">All Categories</option>
               {categories.map(category => (
-                <option key={category._id} value={category._id}>
+                <option key={category._id} value={category.name}>
                   {category.name}
                 </option>
               ))}

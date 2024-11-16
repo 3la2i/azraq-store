@@ -65,6 +65,14 @@ const Navbar = () => {
             >
               <Link to="/resturant">Restaurants</Link>
             </li>
+            <li
+              onClick={() => setMenu("partner")}
+              className={`${menu === "partner" ? "border-b-2 border-gray-800 pb-1" : ""} cursor-pointer`}
+            >
+              <Link to="register/restaurant-owner" className="">
+                Become a Partner
+              </Link>
+            </li>
           </ul>
 
           <div className="flex items-center gap-4 mt-4 md:mt-0 md:ml-auto">
