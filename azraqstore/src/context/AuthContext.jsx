@@ -50,7 +50,6 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -58,3 +57,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

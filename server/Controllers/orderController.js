@@ -33,10 +33,12 @@ const createNotification = async (userId, orderId, message, type) => {
 
 // Add this function at the top of the file
 const checkDriverAvailability = async (driverId) => {
+  console.log('Checking availability for driver:', driverId);
   const activeOrder = await Order.findOne({
     driver: driverId,
     status: { $in: ['accepted', 'on the way'] }
   });
+  console.log('Found active order:', activeOrder);
   return !activeOrder;
 };
 
@@ -151,7 +153,12 @@ exports.acceptOrder = async (req, res) => {
 
     const order = await Order.findByIdAndUpdate(
       req.params.orderId,
-      { $set: { status: 'accepted', driver: driverId } },
+      { 
+        $set: { 
+          status: 'accepted', 
+          driver: driverId 
+        } 
+      },
       { new: true }
     ).populate('user', '_id');
 
@@ -159,24 +166,13 @@ exports.acceptOrder = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    console.log('Order found:', {
-      orderId: order._id,
-      userId: order.user._id,
-      status: order.status
-    });
-
     // Create notification for the customer
-    try {
-      await createNotification(
-        order.user._id,
-        order._id,
-        'A driver has accepted your order and will pick it up soon.',
-        'order_accepted'
-      );
-    } catch (notificationError) {
-      console.error('Failed to create notification:', notificationError);
-      // Continue with the response even if notification fails
-    }
+    await createNotification(
+      order.user._id,
+      order._id,
+      'A driver has accepted your order and will pick it up soon.',
+      'order_accepted'
+    );
 
     res.json(order);
   } catch (error) {
@@ -324,8 +320,11 @@ exports.getRestaurantOrders = async (req, res) => {
 
 exports.getDriverOrders = async (req, res) => {
   try {
+    console.log('Driver ID:', req.user.userId);
+
+    // Find active order (status is either 'accepted' or 'on the way')
     const activeOrder = await Order.findOne({
-      driver: req.user.id,
+      driver: req.user.userId,
       status: { $in: ['accepted', 'on the way'] }
     })
     .populate({
@@ -336,13 +335,11 @@ exports.getDriverOrders = async (req, res) => {
         select: 'name address phoneNumber'
       }
     })
-    .populate('restaurant')
-    .select('_id total status restaurantStatus firstName lastName email phone info deliveryAddress items paymentMethod restaurant')
     .lean();
 
-    console.log('Raw active order data:', activeOrder);
-    console.log('Info field from active order:', activeOrder?.info);
+    console.log('Active order:', activeOrder);
 
+    // Find available orders (status is 'pending' and no driver assigned)
     const availableOrders = await Order.find({
       status: 'pending',
       driver: { $exists: false }
@@ -355,18 +352,13 @@ exports.getDriverOrders = async (req, res) => {
         select: 'name address phoneNumber'
       }
     })
-    .populate('restaurant')
-    .select('_id total status restaurantStatus firstName lastName email phone info deliveryAddress items paymentMethod restaurant')
     .lean();
 
-    console.log('Available orders info fields:', availableOrders.map(order => ({
-      orderId: order._id,
-      info: order.info
-    })));
+    console.log('Available orders:', availableOrders);
 
     res.json({
-      activeOrder: activeOrder,
-      availableOrders: availableOrders
+      activeOrder,
+      availableOrders
     });
   } catch (error) {
     console.error('Error fetching driver orders:', error);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { MapPin, Clock, Star, ChevronRight, Users, TrendingUp } from 'lucide-react'
+import { MapPin, Clock, Star, ChevronRight, Users, TrendingUp, DollarSign } from 'lucide-react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
@@ -265,6 +265,61 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Driver Recruitment Section */}
+      <section className="py-20 bg-orange-50">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="md:w-1/2 mb-8 md:mb-0">
+              <h2 className="text-4xl font-bold text-gray-800 mb-6">
+                Join Our Delivery Team
+              </h2>
+              <p className="text-xl text-gray-600 mb-8">
+                Become a delivery partner and enjoy flexible hours, competitive earnings, and be part of our growing community.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-orange-600 text-white">
+                      <Clock className="h-6 w-6" />
+                    </div>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">Flexible Schedule</h3>
+                    <p className="mt-2 text-gray-600">Work when you want, as much as you want</p>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-orange-600 text-white">
+                      <DollarSign className="h-6 w-6" />
+                    </div>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">Competitive Pay</h3>
+                    <p className="mt-2 text-gray-600">Earn competitive rates per delivery</p>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/request')}
+                className="bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-300 hover:scale-105 hover:bg-orange-700"
+              >
+                Apply Now
+              </button>
+            </div>
+            <div className="md:w-1/2 md:pl-12">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSN8sb1MuaGAk7DgNePxxhX4ImDK3Kn21BOeg&s"
+                alt="Delivery Partner"
+                className="rounded-lg shadow-xl transform transition-transform duration-300 hover:scale-105"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   )
 }

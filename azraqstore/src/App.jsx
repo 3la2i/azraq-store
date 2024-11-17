@@ -37,6 +37,10 @@ import RestaurantManagement from "./Pages/Admin/components/RestaurantManagement"
 import TestimonialManagement from './Pages/Admin/TestimonialManagement';
 import ContactMessages from './Pages/Admin/ContactMessages';
 
+// Add this to your imports
+import RequestForm from './Pages/RequestForm/RequestForm';
+import RequestManagement from './Pages/Admin/RequestManagement';
+
 const App = () => {
   const location = useLocation();
 
@@ -53,6 +57,7 @@ const App = () => {
           <Route path="restaurant-management" element={<RestaurantManagement />} />
           <Route path="testimonials" element={<TestimonialManagement />} />
           <Route path="contact-messages" element={<ContactMessages />} />
+          <Route path="requests" element={<RequestManagement />} />
         </Route>
         <Route path="/" element={<LandingPage />} />
         <Route path="/cart" element={<Cart />} />
@@ -84,6 +89,8 @@ const App = () => {
           } 
         />
         <Route path="/register/restaurant-owner" element={<RestaurantOwnerRegister />} />
+    
+        <Route path="/request" element={<RequestForm />} />
       </Routes>
       {location.pathname !== "/admin" && <Footer />}
       {/* {location.pathname !== "/driver" && <Footer />} */}

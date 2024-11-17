@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Package, DollarSign, FileText, Image as ImageIcon, Tag } from 'lucide-react';
 
-const ProductForm = ({ onSubmit, initialData }) => {
-  const [formData, setFormData] = useState(initialData || {
+const ProductForm = ({ onSubmit, initialData, onCancel }) => {
+  const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
@@ -10,7 +10,19 @@ const ProductForm = ({ onSubmit, initialData }) => {
     image: null
   });
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        name: initialData.name,
+        description: initialData.description,
+        price: initialData.price,
+        category: initialData.category,
+        image: null
+      });
+    }
+  }, [initialData]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const productData = new FormData();
     productData.append('name', formData.name);
@@ -20,13 +32,29 @@ const ProductForm = ({ onSubmit, initialData }) => {
     if (formData.image instanceof File) {
       productData.append('image', formData.image);
     }
-    onSubmit(productData);
+    
+    await onSubmit(productData);
+    
+    // Clear form after successful submission
+    setFormData({
+      name: '',
+      description: '',
+      price: '',
+      category: '',
+      image: null
+    });
+
+    // Reset file input
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) {
+      fileInput.value = '';
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 space-y-6 max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold text-red-600 mb-6">
-        {initialData ? 'Update Product' : 'Add New Product'}
+        {initialData ? 'Edit Product' : 'Add New Product'}
       </h2>
 
       <div>
@@ -104,12 +132,23 @@ const ProductForm = ({ onSubmit, initialData }) => {
         />
       </div>
 
-      <button
-        type="submit"
-        className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-300 ease-in-out"
-      >
-        {initialData ? 'Update Product' : 'Add Product'}
-      </button>
+      <div className="flex justify-end space-x-4">
+        {initialData && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-300 ease-in-out"
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          type="submit"
+          className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-300 ease-in-out"
+        >
+          {initialData ? 'Update Product' : 'Add Product'}
+        </button>
+      </div>
     </form>
   );
 };

@@ -30,6 +30,8 @@ const userRoutes = require('./Routes/userRoutes');
 const dashboardRoutes = require('./Routes/dashboardRoutes');
 const restaurantOwnerRoutes = require('./Routes/restaurantOwnerRoutes');
 const testimonialRoutes = require('./Routes/testimonialRoutes');
+const requestRoutes = require('./Routes/requestRoutes');
+
 
 // Import auth middleware
 
@@ -57,6 +59,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const fs = require('fs');
 if (!fs.existsSync('uploads')) {
     fs.mkdirSync('uploads');
+}
+if (!fs.existsSync('uploads/resumes')) {
+    fs.mkdirSync('uploads/resumes', { recursive: true });
 }
 
 // Set up Multer for file uploads
@@ -94,6 +99,8 @@ app.use('/api/testimonials', (req, res, next) => {
   next();
 });
 app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/requests', requestRoutes);
+
 
 // Base route
 app.get('/', (req, res) => {

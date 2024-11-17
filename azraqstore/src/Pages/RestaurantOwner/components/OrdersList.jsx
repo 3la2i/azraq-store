@@ -81,7 +81,7 @@ const OrdersList = ({ orders, onOrderUpdated }) => {
           <div className="p-6">
             <div className="flex flex-wrap justify-between items-start mb-4">
               <div>
-                <h3 className="text-2xl font-bold text-gray-800">Order #{order._id.slice(-6)}</h3>
+                <h3 className="text-2xl font-bold text-gray-800">Order #{order._id}</h3>
                 <div className="mt-2 flex items-center text-sm text-gray-600">
                   <User className="h-4 w-4 mr-1" />
                   <span>{order.user?.name || 'Anonymous'}</span>

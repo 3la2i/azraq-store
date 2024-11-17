@@ -7,6 +7,7 @@ import ProductsList from './components/ProductsList';
 import RestaurantProfit from './components/RestaurantProfit';
 import axios from 'axios';
 import { Store, ShoppingBag, ClipboardList, AlertCircle, Menu, X, DollarSign } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const Dashboard = () => {
   const [restaurant, setRestaurant] = useState(null);
@@ -17,6 +18,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
 
   useEffect(() => {
     fetchRestaurantData();
@@ -91,6 +93,10 @@ const Dashboard = () => {
       console.error('Error toggling online status:', error.response || error);
       alert(error.response?.data?.message || 'Error updating restaurant status');
     }
+  };
+
+  const handleEditProduct = (product) => {
+    setEditingProduct(product);
   };
 
   if (loading) {
@@ -292,20 +298,67 @@ const Dashboard = () => {
               <ProductForm
                 onSubmit={async (data) => {
                   try {
-                    await axios.post('http://localhost:5000/api/restaurant-owner/products', data, {
-                      headers: { 
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'multipart/form-data'
-                      }
-                    });
+                    if (editingProduct) {
+                      // Update existing product
+                      data.append('_id', editingProduct._id);
+                      await axios.put(
+                        `http://localhost:5000/api/restaurant-owner/products/${editingProduct._id}`,
+                        data,
+                        {
+                          headers: { 
+                            Authorization: `Bearer ${localStorage.getItem('token')}`,
+                            'Content-Type': 'multipart/form-data'
+                          }
+                        }
+                      );
+                      setEditingProduct(null);
+                      // Show success message
+                      Swal.fire({
+                        title: 'Success!',
+                        text: 'Product updated successfully',
+                        icon: 'success',
+                        confirmButtonColor: '#EF4444',
+                      });
+                    } else {
+                      // Create new product
+                      await axios.post(
+                        'http://localhost:5000/api/restaurant-owner/products',
+                        data,
+                        {
+                          headers: { 
+                            Authorization: `Bearer ${localStorage.getItem('token')}`,
+                            'Content-Type': 'multipart/form-data'
+                          }
+                        }
+                      );
+                      // Show success message
+                      Swal.fire({
+                        title: 'Success!',
+                        text: 'Product created successfully',
+                        icon: 'success',
+                        confirmButtonColor: '#EF4444',
+                      });
+                    }
                     fetchProducts();
                   } catch (error) {
-                    console.error('Error adding product:', error);
+                    console.error('Error saving product:', error);
+                    Swal.fire({
+                      title: 'Error!',
+                      text: error.response?.data?.message || 'Error saving product. Please try again.',
+                      icon: 'error',
+                      confirmButtonColor: '#EF4444',
+                    });
                   }
                 }}
+                initialData={editingProduct}
+                onCancel={() => setEditingProduct(null)}
               />
               <div className="mt-8">
-                <ProductsList products={products} onProductUpdated={fetchProducts} />
+                <ProductsList 
+                  products={products} 
+                  onProductUpdated={fetchProducts}
+                  onEditProduct={handleEditProduct}
+                />
               </div>
             </div>
           )}

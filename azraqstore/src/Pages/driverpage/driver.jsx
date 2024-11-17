@@ -24,6 +24,9 @@ const DriverOrdersPage = () => {
       const response = await axios.get('http://localhost:5000/api/orders/driver', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
+      console.log('Fetched orders:', response.data);
+      
       setActiveOrder(response.data.activeOrder);
       setAvailableOrders(response.data.availableOrders);
       setLoading(false);
@@ -37,10 +40,32 @@ const DriverOrdersPage = () => {
   const handleOrderAction = async (orderId, action) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(`http://localhost:5000/api/orders/${orderId}/${action}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
+      
+      const result = await Swal.fire({
+        title: `Confirm ${action.replace('_', ' ')}`,
+        text: `Are you sure you want to ${action.replace('_', ' ')} this order?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10B981',
+        cancelButtonColor: '#EF4444',
+        confirmButtonText: 'Yes, proceed',
+        cancelButtonText: 'Cancel'
       });
-      fetchOrders(); // Refresh the order list
+
+      if (result.isConfirmed) {
+        await axios.put(`http://localhost:5000/api/orders/${orderId}/${action}`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        await Swal.fire({
+          title: 'Success!',
+          text: `Order ${action.replace('_', ' ')} successful`,
+          icon: 'success',
+          confirmButtonColor: '#10B981'
+        });
+
+        fetchOrders();
+      }
     } catch (error) {
       console.error(`Error ${action}ing order:`, error);
       
@@ -49,11 +74,17 @@ const DriverOrdersPage = () => {
           title: 'Active Order Exists',
           text: 'You already have an active order. Complete it before accepting a new one.',
           icon: 'warning',
-          confirmButtonColor: '#EF4444', // Red color to match your theme
+          confirmButtonColor: '#EF4444',
           confirmButtonText: 'OK'
         });
       } else {
-        setError(error.response?.data?.message || `Failed to ${action} order`);
+        await Swal.fire({
+          title: 'Error',
+          text: error.response?.data?.message || `Failed to ${action} order`,
+          icon: 'error',
+          confirmButtonColor: '#EF4444',
+          confirmButtonText: 'OK'
+        });
       }
     }
   };
@@ -65,79 +96,80 @@ const DriverOrdersPage = () => {
   const renderOrderCard = (order) => (
     <div key={order._id} className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
       <div 
-        className="bg-red-100 px-4 py-3 flex justify-between items-center cursor-pointer"
+        className="bg-red-100 px-4 py-3 cursor-pointer"
         onClick={() => toggleOrderExpansion(order._id)}
       >
-        <span className="text-lg font-semibold">Order #{order._id.slice(-6)}</span>
-        <div className="flex items-center">
-          <div className="flex gap-2 mr-4">
-            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-              getRestaurantStatusColor(order.restaurantStatus)
-            }`}>
-              Restaurant: {order.restaurantStatus}
-            </span>
-            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-              getStatusColor(order.status)
-            }`}>
-              Delivery: {order.status}
-            </span>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+          <span className="text-lg font-semibold">Order #{order._id.slice(-6)}</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <div className="flex flex-wrap gap-2">
+              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                getRestaurantStatusColor(order.restaurantStatus)
+              }`}>
+                {order.restaurantStatus}
+              </span>
+              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                getStatusColor(order.status)
+              }`}>
+                {order.status}
+              </span>
+            </div>
+            <ChevronDown className={`transform transition-transform ${
+              expandedOrder === order._id ? 'rotate-180' : ''
+            }`} />
           </div>
-          {expandedOrder === order._id ? <ChevronUp /> : <ChevronDown />}
         </div>
       </div>
+
       {expandedOrder === order._id && (
         <div className="p-4 space-y-4">
-          {/* Order Summary */}
-          <div className="bg-gray-50 p-4 rounded-md">
-            <h3 className="text-lg font-semibold mb-2">Order Summary</h3>
-            <div className="grid grid-cols-2 gap-2">
+          <div className="bg-gray-50 p-3 rounded-md">
+            <h3 className="text-md font-semibold mb-2">Order Summary</h3>
+            <div className="flex flex-wrap gap-4">
               <div className="flex items-center">
-                <DollarSign className="h-5 w-5 text-red-500 mr-2" />
-                <span className="font-medium">Total: ${order.total?.toFixed(2) || '0.00'}</span>
+                <DollarSign className="h-4 w-4 text-red-500 mr-1" />
+                <span className="font-medium">${order.total?.toFixed(2) || '0.00'}</span>
               </div>
               <div className="flex items-center">
-                <CreditCard className="h-5 w-5 text-red-500 mr-2" />
+                <CreditCard className="h-4 w-4 text-red-500 mr-1" />
                 <span>{order.paymentMethod === 'cash' ? 'Cash on Delivery' : 'PayPal'}</span>
               </div>
             </div>
           </div>
 
-          {/* Customer Information */}
-          <div className="bg-gray-50 p-4 rounded-md">
-            <h3 className="text-lg font-semibold mb-2">Customer Information</h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <p><span className="font-medium">First Name:</span> {order.firstName}</p>
-                <p><span className="font-medium">Last Name:</span> {order.lastName}</p>
-                <p><span className="font-medium">Email:</span> {order.email}</p>
-                <p><span className="font-medium">Phone:</span> {order.phone}</p>
+          <div className="bg-gray-50 p-3 rounded-md">
+            <h3 className="text-md font-semibold mb-2">Customer Information</h3>
+            <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="flex items-center">
+                  <User className="h-4 w-4 text-red-500 mr-2" />
+                  <span>{`${order.firstName} ${order.lastName}`}</span>
+                </div>
+                <div className="flex items-center">
+                  <Phone className="h-4 w-4 text-red-500 mr-2" />
+                  <span>{order.phone}</span>
+                </div>
               </div>
 
-              {/* Debug log */}
-              {console.log('Full order object:', order)}
-              {console.log('Info field type:', typeof order.info)}
-              {console.log('Info field value:', order.info)}
-              
-              {/* Modified Additional Info section */}
-              {order.info && order.info.length > 0 && (
-                <div className="mt-4 bg-white p-3 rounded-md border border-gray-200">
-                  <p className="font-medium text-red-600">Additional Information:</p>
-                  <p className="text-gray-700 mt-1">{order.info}</p>
+              {order.info && (
+                <div className="mt-2 bg-white p-2 rounded-md border border-gray-200">
+                  <p className="text-sm font-medium text-red-600">Additional Info:</p>
+                  <p className="text-sm text-gray-700">{order.info}</p>
                 </div>
               )}
 
               {order.deliveryAddress && (
-                <div className="flex items-start mt-4">
-                  <MapPin className="h-5 w-5 text-red-500 mr-2 mt-1" />
-                  <div>
+                <div className="flex items-start mt-2">
+                  <MapPin className="h-4 w-4 text-red-500 mr-2 mt-1" />
+                  <div className="text-sm">
                     <p className="font-medium">Delivery Address:</p>
-                    <p>{order.deliveryAddress.street || 'N/A'}</p>
+                    <p>{order.deliveryAddress.street}</p>
                     <p>
                       {[
                         order.deliveryAddress.city,
                         order.deliveryAddress.state,
                         order.deliveryAddress.zipCode
-                      ].filter(Boolean).join(', ') || 'N/A'}
+                      ].filter(Boolean).join(', ')}
                     </p>
                   </div>
                 </div>
@@ -145,81 +177,79 @@ const DriverOrdersPage = () => {
             </div>
           </div>
 
-          {/* Order Items */}
-          <div className="bg-gray-50 p-4 rounded-md">
-            <h3 className="text-lg font-semibold mb-2">Order Items</h3>
-            <ul className="space-y-2">
+          <div className="bg-gray-50 p-3 rounded-md">
+            <h3 className="text-md font-semibold mb-2">Order Items</h3>
+            <ul className="divide-y divide-gray-200">
               {order.items?.map((item, index) => (
-                <li key={index} className="flex justify-between items-center">
-                  <span>{item.quantity}x {item.product?.name || 'Unknown Product'}</span>
+                <li key={index} className="py-2 flex justify-between items-center">
+                  <div className="flex items-center">
+                    <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full mr-2">
+                      {item.quantity}x
+                    </span>
+                    <span>{item.product?.name || 'Unknown Product'}</span>
+                  </div>
                   <span className="font-medium">${((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Restaurant Information */}
           {order.items?.[0]?.product?.restaurant && (
-            <div className="bg-gray-50 p-4 rounded-md border-l-4 border-red-500">
-              <h3 className="text-xl font-semibold mb-2 text-red-600">Restaurant Information</h3>
-              <div className="space-y-2">
-                <p className="text-lg">
-                  <span className="font-medium">Name:</span> {order.items[0].product.restaurant.name}
-                </p>
+            <div className="bg-gray-50 p-3 rounded-md border-l-4 border-red-500">
+              <h3 className="text-md font-semibold mb-2 text-red-600">Restaurant</h3>
+              <div className="space-y-2 text-sm">
+                <p className="font-medium">{order.items[0].product.restaurant.name}</p>
                 {order.items[0].product.restaurant.address && (
                   <div className="flex items-start">
-                    <MapPin className="h-5 w-5 text-red-500 mr-2 mt-1" />
+                    <MapPin className="h-4 w-4 text-red-500 mr-2 mt-1" />
                     <div>
-                      <p className="font-medium">Address:</p>
-                      <p>{order.items[0].product.restaurant.address.street || 'N/A'}</p>
+                      <p>{order.items[0].product.restaurant.address.street}</p>
                       <p>
                         {[
                           order.items[0].product.restaurant.address.city,
                           order.items[0].product.restaurant.address.state,
                           order.items[0].product.restaurant.address.zipCode
-                        ].filter(Boolean).join(', ') || 'N/A'}
+                        ].filter(Boolean).join(', ')}
                       </p>
                     </div>
                   </div>
                 )}
                 <div className="flex items-center">
-                  <Phone className="h-5 w-5 text-red-500 mr-2" />
+                  <Phone className="h-4 w-4 text-red-500 mr-2" />
                   <span>{order.items[0].product.restaurant.phoneNumber || 'N/A'}</span>
                 </div>
               </div>
             </div>
           )}
 
-          {renderOrderActions(order)}
+          <div className="mt-4">
+            {renderOrderActions(order)}
+          </div>
         </div>
       )}
     </div>
   );
 
   const renderOrderActions = (order) => {
+    const buttonBaseClass = "w-full px-4 py-3 rounded-md font-medium text-white transition-colors duration-200";
+    
     switch (order.status) {
       case 'pending':
         return (
-          <div className="flex justify-between mt-4">
+          <div className="flex flex-col sm:flex-row gap-2">
             <button 
               onClick={() => handleOrderAction(order._id, 'accept')}
-              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200"
+              className={`${buttonBaseClass} bg-green-500 hover:bg-green-600`}
             >
-              Accept
+              Accept Order
             </button>
-            {/* <button 
-              onClick={() => handleOrderAction(order._id, 'reject')}
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200"
-            >
-              Reject
-            </button> */}
           </div>
         );
       case 'accepted':
         return (
           <button 
             onClick={() => handleOrderAction(order._id, 'start_delivery')}
-            className="w-full mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200"
+            className={`${buttonBaseClass} bg-blue-500 hover:bg-blue-600`}
           >
             Start Delivery
           </button>
@@ -228,7 +258,7 @@ const DriverOrdersPage = () => {
         return (
           <button 
             onClick={() => handleOrderAction(order._id, 'complete')}
-            className="w-full mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200"
+            className={`${buttonBaseClass} bg-green-500 hover:bg-green-600`}
           >
             Complete Delivery
           </button>
@@ -336,19 +366,24 @@ const DriverOrdersPage = () => {
             onClick={() => setIsProfileOpen(false)}
           ></div>
           
-          {/* Profile Panel - Full screen on mobile, sidebar on desktop */}
-          <div className="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto">
+          {/* Profile Panel - Full width on mobile, wider on desktop */}
+          <div className="fixed inset-x-0 bottom-0 md:inset-y-0 md:right-0 md:left-auto w-full md:w-[500px] lg:w-[600px] bg-white shadow-lg z-50 transform transition-all duration-300 ease-in-out overflow-y-auto rounded-t-2xl md:rounded-none">
             <div className="p-4 relative h-full">
+              {/* Mobile handle bar */}
+              <div className="md:hidden w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-4"></div>
+              
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Driver Profile</h2>
                 <button
                   onClick={() => setIsProfileOpen(false)}
                   className="text-gray-500 hover:text-gray-700"
                 >
-                  <ChevronDown size={24} />
+                  <ChevronDown className="transform md:rotate-90" size={24} />
                 </button>
               </div>
-              <ProfilePage />
+              <div className="max-h-[80vh] md:max-h-full overflow-y-auto">
+                <ProfilePage />
+              </div>
             </div>
           </div>
         </>

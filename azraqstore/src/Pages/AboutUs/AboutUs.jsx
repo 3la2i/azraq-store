@@ -96,11 +96,14 @@ const AboutUs = () => {
                 onClick={() => navigate('/register/restaurant-owner')}
                 className="bg-white hover:bg-orange-50 text-orange-600 font-bold py-2 px-4 rounded border border-orange-600 transition duration-300"
               >
-                join your resturant 
+                Join Your Restaurant
               </button>
-              {/* <button className="bg-white hover:bg-orange-50 text-orange-600 font-bold py-2 px-4 rounded border border-orange-600 transition duration-300">
-                Become a Delivery Partner
-              </button> */}
+              <button 
+                onClick={() => navigate('/request')}
+                className="bg-white hover:bg-orange-50 text-orange-600 font-bold py-2 px-4 rounded border border-orange-600 transition duration-300"
+              >
+                Become a Driver
+              </button>
             </div>
           </div>
         </section>

@@ -1,18 +1,48 @@
 import React from 'react';
 import axios from 'axios';
 import { Trash2, Edit2, DollarSign, Tag } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const ProductsList = ({ products, onProductUpdated, onEditProduct }) => {
   const handleDelete = async (productId) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
+    try {
+      // Show confirmation dialog
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#6B7280',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+      });
+
+      // If user confirms deletion
+      if (result.isConfirmed) {
         await axios.delete(`http://localhost:5000/api/restaurant-owner/products/${productId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
+        
+        // Show success message
+        await Swal.fire({
+          title: 'Deleted!',
+          text: 'Product has been deleted.',
+          icon: 'success',
+          confirmButtonColor: '#EF4444'
+        });
+        
         onProductUpdated();
-      } catch (error) {
-        console.error('Error deleting product:', error);
       }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      // Show error message
+      Swal.fire({
+        title: 'Error!',
+        text: error.response?.data?.message || 'Failed to delete product',
+        icon: 'error',
+        confirmButtonColor: '#EF4444'
+      });
     }
   };
 

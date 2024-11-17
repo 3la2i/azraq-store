@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Home, Users, Truck, Utensils, ShoppingBag, LogOut, DollarSign, ChevronLeft, ChevronRight, Menu, MessageSquare, Mail } from 'lucide-react'
+import { Home, Users, Truck, Utensils, ShoppingBag, LogOut, DollarSign, ChevronLeft, ChevronRight, Menu, MessageSquare, Mail, FileText } from 'lucide-react'
 import Swal from 'sweetalert2'
 import axios from 'axios'
 
@@ -31,6 +31,7 @@ const Admin = () => {
     { path: '/admin/profit', icon: DollarSign, label: 'Profit' },
     { path: '/admin/testimonials', icon: MessageSquare, label: 'Testimonials' },
     { path: '/admin/contact-messages', icon: Mail, label: 'Contact Messages' },
+    { path: '/admin/requests', icon: FileText, label: 'Requests' },
   ]
 
   const handleLogout = () => {

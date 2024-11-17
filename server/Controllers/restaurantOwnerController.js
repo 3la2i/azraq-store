@@ -496,3 +496,45 @@ exports.getRestaurantProfits = async (req, res) => {
     });
   }
 };
+
+// Add this new function for updating products
+exports.updateProduct = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findOne({ owner: req.user.userId });
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+
+    // Check if the product belongs to this restaurant
+    const existingProduct = await Product.findOne({
+      _id: req.params.id,
+      restaurant: restaurant._id
+    });
+
+    if (!existingProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    const updateData = {
+      name: req.body.name,
+      description: req.body.description,
+      price: parseFloat(req.body.price),
+      category: req.body.category,
+    };
+
+    if (req.file) {
+      updateData.image = req.file.path;
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
+
+    res.json(updatedProduct);
+  } catch (error) {
+    console.error('updateProduct error:', error);
+    res.status(500).json({ message: 'Error updating product', error: error.message });
+  }
+};

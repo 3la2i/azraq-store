@@ -21,9 +21,13 @@ exports.getDrivers = async (req, res) => {
 exports.toggleUserStatus = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { isActive } = req.body;
+    const { isActive, role } = req.body;
 
-    const user = await User.findByIdAndUpdate(userId, { isActive }, { new: true });
+    const updateData = {};
+    if (isActive !== undefined) updateData.isActive = isActive;
+    if (role !== undefined) updateData.role = role;
+
+    const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -31,6 +35,6 @@ exports.toggleUserStatus = async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: 'Error updating user status', error: error.message });
+    res.status(500).json({ message: 'Error updating user', error: error.message });
   }
 };

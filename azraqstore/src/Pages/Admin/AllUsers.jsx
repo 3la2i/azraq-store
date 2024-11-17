@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, ChevronDown, ChevronLeft, ChevronRight, User, Mail, AlertCircle, ToggleLeft, ToggleRight, Loader2 } from 'lucide-react';
+import { Search, ChevronDown, ChevronLeft, ChevronRight, User, Mail, AlertCircle, ToggleLeft, ToggleRight, Loader2, Send } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const AllUsers = () => {
@@ -107,6 +107,41 @@ const AllUsers = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const handleRoleChange = async (userId, currentRole, newRole) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`http://localhost:5000/api/users/${userId}/toggle-status`, 
+        { role: newRole },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setUsers(users.map(user => 
+        user._id === userId 
+          ? { ...user, role: newRole }
+          : user
+      ));
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Role Updated',
+        text: 'User role updated successfully',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    } catch (error) {
+      console.error('Error changing user role:', error);
+      Swal.fire('Error', 'Failed to update user role', 'error');
+    }
+  };
+
+  const handleEmailClick = (email, name) => {
+    const mailtoLink = `mailto:${email}?subject=Message from Admin to ${name}`;
+    window.location.href = mailtoLink;
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100">
@@ -195,7 +230,16 @@ const AllUsers = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{user.role}</div>
+                      <select
+                        value={user.role}
+                        onChange={(e) => handleRoleChange(user._id, user.role, e.target.value)}
+                        className="block w-full px-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                      >
+                        <option value="customer">Customer</option>
+                        <option value="driver">Driver</option>
+                        <option value="admin">Admin</option>
+                        <option value="restaurant_owner">Restaurant Owner</option>
+                      </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -215,6 +259,13 @@ const AllUsers = () => {
                         ) : (
                           <ToggleLeft className="h-5 w-5" />
                         )}
+                      </button>
+                      <button 
+                        onClick={() => handleEmailClick(user.email, user.name)}
+                        className="text-indigo-600 hover:text-indigo-900 mr-4 transition-colors duration-200"
+                        aria-label={`Send email to ${user.name}`}
+                      >
+                        <Send className="h-5 w-5" />
                       </button>
                     </td>
                   </tr>

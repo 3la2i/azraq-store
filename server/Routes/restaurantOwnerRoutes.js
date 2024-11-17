@@ -48,6 +48,7 @@ router.put('/orders/:orderId/status', restaurantOwnerController.updateOrderStatu
 // Product routes
 router.get('/products', restaurantOwnerController.getProducts);
 router.post('/products', upload.single('image'), restaurantOwnerController.addProduct);
+router.put('/products/:id', upload.single('image'), restaurantOwnerController.updateProduct);
 router.delete('/products/:id', restaurantOwnerController.deleteProduct);
 
 // Toggle status route
