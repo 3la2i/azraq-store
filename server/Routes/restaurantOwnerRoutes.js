@@ -53,4 +53,7 @@ router.delete('/products/:id', restaurantOwnerController.deleteProduct);
 // Toggle status route
 router.put('/toggle-status', restaurantOwnerController.toggleOnlineStatus);
 
+// Add this with your other routes
+router.get('/profits', restaurantOwnerController.getRestaurantProfits);
+
 module.exports = router;

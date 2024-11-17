@@ -329,28 +329,45 @@ const DriverOrdersPage = () => {
 
       {/* Profile Sidebar */}
       {isProfileOpen && (
-        <div className="fixed inset-y-0 right-0 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out">
-          <div className="p-4">
-            <button
-              onClick={() => setIsProfileOpen(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-            >
-              <ChevronDown size={24} />
-            </button>
-            <h2 className="text-xl font-semibold mb-4">Driver Profile</h2>
-            <ProfilePage />
+        <>
+          {/* Overlay */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={() => setIsProfileOpen(false)}
+          ></div>
+          
+          {/* Profile Panel - Full screen on mobile, sidebar on desktop */}
+          <div className="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto">
+            <div className="p-4 relative h-full">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">Driver Profile</h2>
+                <button
+                  onClick={() => setIsProfileOpen(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <ChevronDown size={24} />
+                </button>
+              </div>
+              <ProfilePage />
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Notifications Dropdown */}
       {isNotificationsOpen && (
-        <div className="absolute top-16 right-4 w-64 bg-white rounded-lg shadow-lg">
-          <div className="p-4">
-            <h2 className="text-lg font-semibold mb-2">Notifications</h2>
-            <Notifications />
+        <>
+          <div 
+            className="fixed inset-0 bg-transparent z-30" 
+            onClick={() => setIsNotificationsOpen(false)}
+          ></div>
+          <div className="absolute top-16 right-4 w-full md:w-96 bg-white rounded-lg shadow-lg z-40 max-h-[80vh] overflow-y-auto">
+            <div className="p-4">
+              <h2 className="text-lg font-semibold mb-2">Notifications</h2>
+              <Notifications />
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

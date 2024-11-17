@@ -4,8 +4,9 @@ import RestaurantForm from './components/RestaurantForm';
 import ProductForm from './components/ProductForm';
 import OrdersList from './components/OrdersList';
 import ProductsList from './components/ProductsList';
+import RestaurantProfit from './components/RestaurantProfit';
 import axios from 'axios';
-import { Store, ShoppingBag, ClipboardList, AlertCircle, Menu, X } from 'lucide-react';
+import { Store, ShoppingBag, ClipboardList, AlertCircle, Menu, X, DollarSign } from 'lucide-react';
 
 const Dashboard = () => {
   const [restaurant, setRestaurant] = useState(null);
@@ -176,6 +177,21 @@ const Dashboard = () => {
               <ClipboardList className="w-5 h-5 mr-2" />
               Orders
             </button>
+            <button
+              className={`flex items-center justify-center py-4 px-6 text-center font-medium ${
+                activeTab === 'profits' 
+                  ? 'bg-red-600 text-white' 
+                  : 'text-gray-700 hover:bg-red-100'
+              } md:flex-1`}
+              onClick={() => {
+                setActiveTab('profits');
+                setIsMenuOpen(false);
+              }}
+              disabled={!restaurant}
+            >
+              <DollarSign className="w-5 h-5 mr-2" />
+              Profits
+            </button>
           </nav>
         </div>
 
@@ -298,6 +314,13 @@ const Dashboard = () => {
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Orders</h2>
               <OrdersList orders={orders} onOrderUpdated={fetchOrders} />
+            </div>
+          )}
+
+          {activeTab === 'profits' && restaurant && (
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Profit Overview</h2>
+              <RestaurantProfit />
             </div>
           )}
         </div>

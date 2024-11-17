@@ -3,13 +3,14 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+require('dotenv').config();
 
 // Initialize express
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // MongoDB connection URI
-const uri = 'mongodb+srv://alaaata25:alaaata87@cluster0.6hmfl.mongodb.net/azraqStore?retryWrites=true&w=majority';
+const uri = process.env.MONGODB_URI;
 
 // Connect to MongoDB
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -28,6 +29,7 @@ const orderRoutes = require('./Routes/orderRoutes');
 const userRoutes = require('./Routes/userRoutes');
 const dashboardRoutes = require('./Routes/dashboardRoutes');
 const restaurantOwnerRoutes = require('./Routes/restaurantOwnerRoutes');
+const testimonialRoutes = require('./Routes/testimonialRoutes');
 
 // Import auth middleware
 
@@ -82,6 +84,16 @@ app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/contactus', contactRoutes);
 app.use('/api/admin',  require('./Routes/adminRoutes'));
+app.use('/api/testimonials', (req, res, next) => {
+  console.log('Testimonial route accessed:', {
+    method: req.method,
+    path: req.path,
+    query: req.query,
+    body: req.body
+  });
+  next();
+});
+app.use('/api/testimonials', testimonialRoutes);
 
 // Base route
 app.get('/', (req, res) => {

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { MapPin, Search, Clock, Star, ChevronRight } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { MapPin, Clock, Star, ChevronRight, Users, TrendingUp } from 'lucide-react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
@@ -10,12 +10,14 @@ const RestaurantCard = ({ restaurant }) => {
     <div 
       className="w-full bg-white rounded-xl shadow-md overflow-hidden transition-transform duration-300 hover:scale-105 cursor-pointer"
       onClick={() => navigate(`/restaurant/${restaurant._id}`)}
+      aria-label={`View details for ${restaurant.name}`}
     >
       <div className="relative h-48">
         <img 
           className="w-full h-full object-cover" 
           src={`http://localhost:5000/${restaurant.image}`} 
           alt={restaurant.name} 
+          loading="lazy"
         />
         <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 flex items-center">
           <Star className="text-yellow-400 mr-1" size={16} />
@@ -41,72 +43,64 @@ const LandingPage = () => {
   const [stats, setStats] = useState({
     totalRestaurants: 0,
     avgDeliveryTime: '30',
-    customerSatisfaction: '4.8'
+    customerSatisfaction: '0.0'
   })
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch restaurants
-        const response = await axios.get('http://localhost:5000/api/restaurants/getResturant')
-        const activeRestaurants = response.data.filter(r => r.isActive && r.isOnline)
-        setRestaurants(activeRestaurants)
-        
-        // Set top rated restaurants
-        const topRated = activeRestaurants.filter(r => r.rating >= 4.5)
-        setTopRatedRestaurants(topRated)
+  const fetchData = useCallback(async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/restaurants/getResturant');
+      const activeRestaurants = response.data.filter(r => r.isActive && r.isOnline);
+      setRestaurants(activeRestaurants);
 
-        // Update stats
-        setStats({
-          totalRestaurants: activeRestaurants.length,
-          avgDeliveryTime: '30',
-          customerSatisfaction: (activeRestaurants.reduce((acc, curr) => acc + curr.rating, 0) / activeRestaurants.length).toFixed(1)
-        })
+      const topRated = activeRestaurants.filter(r => r.rating >= 4.5);
+      setTopRatedRestaurants(topRated);
 
-        // Set testimonials
-        setTestimonials([
-          {
-            id: 1,
-            text: "Azraq Alshamali has transformed how I order food. The service is exceptional!",
-            author: "Mohammed Ahmed",
-            rating: 5
-          },
-          {
-            id: 2,
-            text: "Best food delivery service in Azraq. Quick, reliable, and great customer service!",
-            author: "Sarah Khalid",
-            rating: 5
-          }
-        ])
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      }
+      const testimonialResponse = await axios.get('http://localhost:5000/api/testimonials/approved');
+      const activeTestimonials = testimonialResponse.data;
+      setTestimonials(activeTestimonials);
+
+      const testimonialSatisfaction = activeTestimonials.length > 0
+        ? (activeTestimonials.reduce((acc, curr) => acc + curr.rating, 0) / activeTestimonials.length).toFixed(1)
+        : '0.0';
+
+      setStats({
+        totalRestaurants: activeRestaurants.length,
+        avgDeliveryTime: '30',
+        customerSatisfaction: testimonialSatisfaction
+      });
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
+  }, []);
 
-    fetchData()
-  }, [])
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   return (
     <div className="min-h-screen bg-white text-gray-800">
       {/* Hero Section */}
-      <section className="bg-orange-50 py-20">
+      <section className="relative bg-gradient-to-r from-orange-500 to-yellow-500 py-20">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center">
-          <div className="md:w-1/2 mb-10 md:mb-0">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-orange-600">
-              Delicious Food,<br />Delivered to You
+          <div className="md:w-1/2 mb-10 md:mb-0 text-white">
+            <h2 className="text-5xl md:text-6xl font-extrabold mb-4">
+              Savor the Flavor,<br />Delivered Fast
             </h2>
-            <p className="text-xl mb-6 text-gray-700">
-              Order from your favorite local restaurants with just one click
+            <p className="text-xl md:text-2xl mb-6">
+              Experience the best local cuisine at your doorstep with just a click.
             </p>
             <div className="flex space-x-4">
               <button 
                 onClick={() => navigate('/resturant')}
-                className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+                className="bg-white text-orange-600 font-bold py-3 px-6 rounded-full shadow-lg transform transition-transform duration-300 hover:scale-105 hover:bg-orange-100"
               >
                 Order Now
               </button>
-              <button className="border border-orange-600 text-orange-600 hover:bg-orange-50 font-bold py-2 px-4 rounded">
+              <button 
+                onClick={() => navigate('/aboutus')} 
+                className="bg-transparent border-2 border-white text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition-transform duration-300 hover:scale-105 hover:bg-white hover:text-orange-600"
+              >
                 Learn More
               </button>
             </div>
@@ -115,7 +109,8 @@ const LandingPage = () => {
             <img 
               src="https://img.freepik.com/free-photo/top-view-fast-food-mix-mozzarella-sticks-club-sandwich-hamburger-mushroom-pizza-caesar-shrimp-salad-french-fries-ketchup-mayo-cheese-sauces-table_141793-3998.jpg" 
               alt="Food delivery illustration" 
-              className="rounded-lg shadow-lg"
+              className="rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105"
+              loading="lazy"
             />
           </div>
         </div>
@@ -125,15 +120,15 @@ const LandingPage = () => {
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
+            <div className="text-center bg-orange-100 p-6 rounded-lg shadow-md">
               <h3 className="text-3xl font-bold text-orange-600">{stats.totalRestaurants}+</h3>
               <p className="text-gray-600">Partner Restaurants</p>
             </div>
-            <div className="text-center">
+            <div className="text-center bg-orange-200 p-6 rounded-lg shadow-md">
               <h3 className="text-3xl font-bold text-orange-600">{stats.avgDeliveryTime} min</h3>
               <p className="text-gray-600">Average Delivery Time</p>
             </div>
-            <div className="text-center">
+            <div className="text-center bg-orange-300 p-6 rounded-lg shadow-md">
               <h3 className="text-3xl font-bold text-orange-600">{stats.customerSatisfaction}/5</h3>
               <p className="text-gray-600">Customer Satisfaction</p>
             </div>
@@ -204,21 +199,69 @@ const LandingPage = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-orange-50">R
+      <section className="py-20 bg-orange-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-12 text-center text-orange-600">What Our Customers Say</h2>
           <div className="grid md:grid-cols-2 gap-8">
-            {testimonials.map(testimonial => (
-              <div key={testimonial.id} className="bg-white p-8 rounded-lg shadow-md">
-                <div className="flex items-center mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="text-yellow-400" size={20} />
-                  ))}
+            {testimonials && testimonials.length > 0 ? (
+              testimonials.map(testimonial => (
+                <div key={testimonial._id} className="bg-white p-8 rounded-lg shadow-md">
+                  <div className="flex items-center mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="text-yellow-400" size={20} />
+                    ))}
+                  </div>
+                  <p className="text-xl italic mb-4">{testimonial.text}</p>
+                  <p className="font-semibold text-orange-600">{testimonial.author}</p>
                 </div>
-                <p className="text-xl italic mb-4">{testimonial.text}</p>
-                <p className="font-semibold text-orange-600">{testimonial.author}</p>
+              ))
+            ) : (
+              <p className="text-center col-span-2 text-gray-600">No testimonials available yet</p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Join Us Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold mb-12 text-center text-orange-600">Join Our Platform</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex flex-col items-center text-center">
+              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-orange-600 text-white mb-4">
+                <Users className="h-6 w-6" />
               </div>
-            ))}
+              <h3 className="text-xl font-semibold mb-2">Expand Your Customer Base</h3>
+              <p className="text-gray-600">
+                Reach new customers and increase your sales through our platform.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-orange-600 text-white mb-4">
+                <TrendingUp className="h-6 w-6" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Boost Your Revenue</h3>
+              <p className="text-gray-600">
+                Increase your orders and grow your business with our delivery service.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-orange-600 text-white mb-4">
+                <Star className="h-6 w-6" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Enhance Your Brand</h3>
+              <p className="text-gray-600">
+                Gain visibility and build your reputation on our popular platform.
+              </p>
+            </div>
+          </div>
+          <div className="text-center mt-12">
+            <button 
+              onClick={() => navigate('/register/restaurant-owner')}
+              className="bg-orange-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition-transform duration-300 hover:scale-105 hover:bg-orange-700"
+            >
+              Register Your Restaurant
+            </button>
           </div>
         </div>
       </section>

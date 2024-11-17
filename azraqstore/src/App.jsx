@@ -5,7 +5,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import Cart from "./Pages/Cart/Cart";
 
 import Footer from "./components/Footer/Footer";
-import DeliveryInfo from "./components/DeliveryInfo/DeliveryInfo";
+
 import ContactUs from "./Pages/ContactUs/ContactUs";
 import AboutUs from "./Pages/AboutUs/AboutUs";
 import Admin from "./Pages/Admin/Admin";
@@ -34,6 +34,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // First import the Profit component at the top
 import Profit from "./Pages/Admin/components/Profit";
 import RestaurantManagement from "./Pages/Admin/components/RestaurantManagement";
+import TestimonialManagement from './Pages/Admin/TestimonialManagement';
+import ContactMessages from './Pages/Admin/ContactMessages';
 
 const App = () => {
   const location = useLocation();
@@ -49,11 +51,13 @@ const App = () => {
           <Route path="users" element={<AllUsers />} />
           <Route path="profit" element={<Profit />} />
           <Route path="restaurant-management" element={<RestaurantManagement />} />
+          <Route path="testimonials" element={<TestimonialManagement />} />
+          <Route path="contact-messages" element={<ContactMessages />} />
         </Route>
         <Route path="/" element={<LandingPage />} />
         <Route path="/cart" element={<Cart />} />
    
-        <Route path="/delivryInfo" element={<DeliveryInfo />} />
+       
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/aboutus" element={<AboutUs />} />
 

@@ -14,6 +14,7 @@ const ProfilePage = () => {
     phoneNumber: '',
     location: '',
   })
+  const [locationError, setLocationError] = useState('')
 
   useEffect(() => {
     fetchUserProfile()
@@ -29,7 +30,7 @@ const ProfilePage = () => {
       setUser(response.data)
       setFormData({
         ...response.data,
-        location: response.data.location ? `${response.data.location.coordinates[0]}, ${response.data.location.coordinates[1]}` : ''
+        location: response.data.location?.description || ''
       })
     } catch (error) {
       console.error('Error fetching profile:', error)
@@ -57,42 +58,49 @@ const ProfilePage = () => {
       ...prevState,
       [name]: value
     }))
+    if (name === 'location') {
+      setLocationError('')
+    }
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      const token = localStorage.getItem('token')
-      const [longitude, latitude] = formData.location.split(',').map(coord => parseFloat(coord.trim()))
+      const token = localStorage.getItem('token');
+      
       const updatedFormData = {
         ...formData,
-        location: { coordinates: [longitude, latitude] }
-      }
+        location: {
+          type: 'Text',
+          description: formData.location
+        }
+      };
+
       const response = await axios.put('http://localhost:5000/api/profile/update', updatedFormData, {
         headers: { Authorization: `Bearer ${token}` }
-      })
-      setUser(response.data)
-      setIsEditing(false)
+      });
+      setUser(response.data);
+      setIsEditing(false);
     } catch (error) {
-      console.error('Error updating profile:', error)
+      console.error('Error updating profile:', error);
     }
-  }
+  };
 
   const toggleOrderExpansion = (orderId) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId)
   }
 
   if (!user) return (
-    <div className="flex justify-center items-center h-screen bg-red-50">
-      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-red-600"></div>
+    <div className="flex justify-center items-center h-screen bg-orange-50">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-orange-600"></div>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-red-50 py-12">
+    <div className="min-h-screen bg-orange-50 py-12">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-red-600">Your Profile</h1>
+          <h1 className="text-4xl font-bold text-orange-600">Your Profile</h1>
           <Notifications />
         </div>
         
@@ -100,12 +108,12 @@ const ProfilePage = () => {
           {/* User Profile Section */}
           <div className="lg:w-1/2">
             <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-              <div className="px-6 py-4 bg-red-600 text-white flex justify-between items-center">
+              <div className="px-6 py-4 bg-orange-600 text-white flex justify-between items-center">
                 <h2 className="text-2xl font-bold">Personal Information</h2>
                 {!isEditing && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="text-white hover:text-red-200 transition-colors"
+                    className="text-white hover:text-orange-200 transition-colors"
                     aria-label="Edit profile"
                   >
                     <Edit2 className="h-6 w-6" />
@@ -125,7 +133,7 @@ const ProfilePage = () => {
                         type="text"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                       />
                     </div>
                     <div>
@@ -138,7 +146,7 @@ const ProfilePage = () => {
                         type="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                       />
                     </div>
                     <div>
@@ -151,12 +159,12 @@ const ProfilePage = () => {
                         type="tel"
                         value={formData.phoneNumber}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                       />
                     </div>
                     <div>
                       <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                        Location (Longitude, Latitude)
+                        Location
                       </label>
                       <input
                         id="location"
@@ -164,14 +172,14 @@ const ProfilePage = () => {
                         type="text"
                         value={formData.location}
                         onChange={handleInputChange}
-                        placeholder="e.g. -73.935242, 40.730610"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                        placeholder="Enter your address or location"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                       />
                     </div>
                     <div className="flex justify-end space-x-2">
                       <button
                         type="submit"
-                        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                        className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                       >
                         Save Changes
                       </button>
@@ -187,7 +195,7 @@ const ProfilePage = () => {
                 ) : (
                   <div className="space-y-6">
                     <div className="flex items-center space-x-4">
-                      <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center text-2xl font-bold text-red-600">
+                      <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center text-2xl font-bold text-orange-600">
                         {user.name.charAt(0)}
                       </div>
                       <div>
@@ -197,26 +205,25 @@ const ProfilePage = () => {
                     </div>
                     <div className="grid gap-4">
                       <div className="flex items-center space-x-4">
-                        <Mail className="h-5 w-5 text-red-500" />
+                        <Mail className="h-5 w-5 text-orange-500" />
                         <span className="text-gray-700">{user.email}</span>
                       </div>
                       <div className="flex items-center space-x-4">
-                        <Phone className="h-5 w-5 text-red-500" />
+                        <Phone className="h-5 w-5 text-orange-500" />
                         <span className="text-gray-700">{user.phoneNumber}</span>
                       </div>
                       <div className="flex items-center space-x-4">
-                        <MapPin className="h-5 w-5 text-red-500" />
+                        <MapPin className="h-5 w-5 text-orange-500" />
                         <span className="text-gray-700">
-                          Longitude: {user.location.coordinates[0]}, 
-                          Latitude: {user.location.coordinates[1]}
+                          {user.location?.description || 'No location provided'}
                         </span>
                       </div>
                       <div className="flex items-center space-x-4">
-                        <Calendar className="h-5 w-5 text-red-500" />
+                        <Calendar className="h-5 w-5 text-orange-500" />
                         <span className="text-gray-700">Created: {new Date(user.createdAt).toLocaleString()}</span>
                       </div>
                       <div className="flex items-center space-x-4">
-                        <Clock className="h-5 w-5 text-red-500" />
+                        <Clock className="h-5 w-5 text-orange-500" />
                         <span className="text-gray-700">Last Updated: {new Date(user.updatedAt).toLocaleString()}</span>
                       </div>
                     </div>
@@ -229,7 +236,7 @@ const ProfilePage = () => {
           {/* Order History Section */}
           <div className="lg:w-1/2">
             <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-              <div className="px-6 py-4 bg-red-600 text-white">
+              <div className="px-6 py-4 bg-orange-600 text-white">
                 <h2 className="text-2xl font-bold">Your Orders</h2>
               </div>
               <div className="px-6 py-6">
@@ -241,13 +248,13 @@ const ProfilePage = () => {
                           className="flex items-center space-x-4 cursor-pointer" 
                           onClick={() => toggleOrderExpansion(order._id)}
                         >
-                          <Package className="h-6 w-6 text-red-500 flex-shrink-0" />
+                          <Package className="h-6 w-6 text-orange-500 flex-shrink-0" />
                           <div className="flex-grow min-w-0">
                             <p className="text-lg font-semibold text-gray-900 truncate">
                               Order ID: {order._id}
                             </p>
                             <p className="text-sm text-gray-500">
-                              Status: <span className="font-medium text-red-600">{order.status}</span>
+                              Status: <span className="font-medium text-orange-600">{order.status}</span>
                             </p>
                             <p className="text-sm text-gray-500">
                               Total: <span className="font-medium">${order.total.toFixed(2)}</span>
@@ -256,20 +263,20 @@ const ProfilePage = () => {
                               Date: {new Date(order.createdAt).toLocaleDateString()}
                             </p>
                             <p className="text-sm text-gray-500">
-                              Restaurant: click to view more {order.restaurant ? order.restaurant.name : 'N/A'}
+                              Restaurant: {order.restaurant ? order.restaurant.name : 'N/A'}
                             </p>
                           </div>
                           {expandedOrder === order._id ? (
-                            <ChevronUp className="h-5 w-5 text-red-500 flex-shrink-0" />
+                            <ChevronUp className="h-5 w-5 text-orange-500 flex-shrink-0" />
                           ) : (
-                            <ChevronDown className="h-5 w-5 text-red-500 flex-shrink-0" />
+                            <ChevronDown className="h-5 w-5 text-orange-500 flex-shrink-0" />
                           )}
                         </div>
                         {expandedOrder === order._id && (
                           <div className="mt-4 pl-10">
-                            <h3 className="text-xl font-semibold mb-4 text-red-600">Order Details</h3>
+                            <h3 className="text-xl font-semibold mb-4 text-orange-600">Order Details</h3>
                             {order.items.map((item, index) => (
-                              <div key={index} className="mb-4 bg-red-50 p-4 rounded-md">
+                              <div key={index} className="mb-4 bg-orange-50 p-4 rounded-md">
                                 <h4 className="font-semibold text-lg">{item.product.name}</h4>
                                 <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                                 <p className="text-sm text-gray-600">Price: ${item.price.toFixed(2)}</p>

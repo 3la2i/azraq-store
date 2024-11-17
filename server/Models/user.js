@@ -12,8 +12,14 @@ const userSchema = new mongoose.Schema({
   restaurant: { type: Schema.Types.ObjectId, ref: 'Restaurant' },
   token: String,
   location: {
-    type: { type: String, default: 'Point' },
-    coordinates: [Number]
+    type: {
+      type: String,
+      default: 'Text'
+    },
+    description: {
+      type: String,
+      default: ''
+    }
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

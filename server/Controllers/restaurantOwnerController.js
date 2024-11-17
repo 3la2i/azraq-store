@@ -392,3 +392,107 @@ exports.toggleOnlineStatus = async (req, res) => {
     });
   }
 };
+
+exports.getRestaurantProfits = async (req, res) => {
+  try {
+    const ADMIN_COMMISSION = 0.07; // 7% commission
+
+    // First find the restaurant for this owner
+    const restaurant = await Restaurant.findOne({ owner: req.user.userId });
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+
+    // Get all orders for this restaurant
+    const orders = await Order.find({ 
+      restaurant: restaurant._id
+    });
+
+    // Initialize status totals
+    const statusTotals = {
+      pending: { count: 0, total: 0 },
+      preparing: { count: 0, total: 0 },
+      received: { count: 0, total: 0 },
+      ready: { count: 0, total: 0 }
+    };
+
+    // Calculate totals for each status
+    orders.forEach(order => {
+      const status = order.restaurantStatus;
+      if (statusTotals[status]) {
+        statusTotals[status].count += 1;
+        statusTotals[status].total += order.total || 0;
+      }
+    });
+
+    // Calculate overall totals
+    const totalSales = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+    const adminCommission = totalSales * ADMIN_COMMISSION;
+    const totalOrders = orders.length;
+
+    // Calculate monthly stats
+    const monthlyStats = [];
+    const monthlyData = {};
+
+    orders.forEach(order => {
+      const date = new Date(order.createdAt);
+      const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+      
+      if (!monthlyData[monthYear]) {
+        monthlyData[monthYear] = {
+          month: monthYear,
+          sales: 0,
+          commission: 0,
+          orders: 0,
+          statusBreakdown: {
+            pending: { count: 0, total: 0 },
+            preparing: { count: 0, total: 0 },
+            received: { count: 0, total: 0 },
+            ready: { count: 0, total: 0 }
+          }
+        };
+      }
+      
+      monthlyData[monthYear].sales += order.total || 0;
+      monthlyData[monthYear].commission += (order.total || 0) * ADMIN_COMMISSION;
+      monthlyData[monthYear].orders += 1;
+
+      // Add status breakdown to monthly stats
+      if (monthlyData[monthYear].statusBreakdown[order.restaurantStatus]) {
+        monthlyData[monthYear].statusBreakdown[order.restaurantStatus].count += 1;
+        monthlyData[monthYear].statusBreakdown[order.restaurantStatus].total += order.total || 0;
+      }
+    });
+
+    // Convert monthly data to array and sort
+    Object.values(monthlyData).forEach(data => {
+      monthlyStats.push(data);
+    });
+
+    monthlyStats.sort((a, b) => {
+      const dateA = new Date(a.month);
+      const dateB = new Date(b.month);
+      return dateB - dateA;
+    });
+
+    const response = {
+      statusTotals,
+      overall: {
+        totalSales,
+        adminCommission,
+        totalOrders
+      },
+      monthlyStats
+    };
+
+    res.json(response);
+
+  } catch (error) {
+    console.error('Error calculating restaurant profits:', error);
+    res.status(500).json({ 
+      message: 'Error calculating profits',
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+};

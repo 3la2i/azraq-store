@@ -1,8 +1,9 @@
-// Login.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { assets } from "../../assets/assets";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const Login = () => {
     email: '',
     password: ''
   });
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -20,8 +21,8 @@ const Login = () => {
       ...prevData,
       [name]: value
     }));
-    if (error[name]) {
-      setError(prevErrors => ({
+    if (errors[name]) {
+      setErrors(prevErrors => ({
         ...prevErrors,
         [name]: ''
       }));
@@ -38,23 +39,23 @@ const Login = () => {
     if (!formData.password) {
       newErrors.password = 'Password is required';
     }
-    setError(newErrors);
+    setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
+    
     setIsLoading(true);
-    setError('');
+    setErrors({});
 
     try {
       const response = await axios.post('http://localhost:5000/api/auth/login', formData);
       const { token, user } = response.data;
       
-      // Login using context
       login(token, user);
       
-      // Navigate based on role
       switch (user.role) {
         case 'restaurant_owner':
           navigate('/restaurant-dashboard', { replace: true });
@@ -69,65 +70,142 @@ const Login = () => {
           navigate('/', { replace: true });
       }
     } catch (error) {
-      setError(error.response?.data?.message || 'Login failed');
+      setErrors({ form: error.response?.data?.message || 'Login failed' });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <h2 className="text-2xl font-bold mb-6">Login</h2>
-      <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-          Email
-        </label>
-        <input
-          className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${error.email ? 'border-red-500' : ''}`}
-          id="email"
-          name="email"
-          type="email"
-          placeholder="Your email"
-          value={formData.email}
-          onChange={handleChange}
-        />
-        {error.email && <p className="text-red-500 text-xs italic">{error.email}</p>}
-      </div>
-      <div className="mb-6">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-          Password
-        </label>
-        <input
-          className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${error.password ? 'border-red-500' : ''}`}
-          id="password"
-          name="password"
-          type="password"
-          placeholder="******************"
-          value={formData.password}
-          onChange={handleChange}
-        />
-        {error.password && <p className="text-red-500 text-xs italic">{error.password}</p>}
-      </div>
-      {error.form && <p className="text-red-500 text-sm italic mb-4">{error.form}</p>}
-      <div className="flex items-center justify-between">
-        <button
-          className={`bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-          type="submit"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Processing...' : 'Sign In'}
-        </button>
-        
-        <Link className='text-tomato' to="/signup">
-          <div>Don't have an account?</div>
+    <div className="min-h-screen bg-orange-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <Link to="/" className="flex justify-center">
+          <img 
+            src={assets.logo}
+            alt="Azraq Alshamali" 
+            className="w-32 cursor-pointer"
+          />
         </Link>
+        <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">Sign in to your account</h2>
       </div>
-    </form>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email address
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                </div>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className={`appearance-none block w-full pl-10 pr-3 py-2 border ${
+                    errors.email ? 'border-red-300' : 'border-gray-300'
+                  } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm`}
+                  placeholder="Your email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  aria-invalid={errors.email ? 'true' : 'false'}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
+                />
+              </div>
+              {errors.email && (
+                <p className="mt-2 text-sm text-red-600" id="email-error">
+                  {errors.email}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  className={`appearance-none block w-full pl-10 pr-3 py-2 border ${
+                    errors.password ? 'border-red-300' : 'border-gray-300'
+                  } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm`}
+                  placeholder="Your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  aria-invalid={errors.password ? 'true' : 'false'}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
+                />
+              </div>
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-600" id="password-error">
+                  {errors.password}
+                </p>
+              )}
+            </div>
+
+            {errors.form && (
+              <div className="rounded-md bg-red-50 p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <AlertCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">{errors.form}</h3>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 ${
+                  isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {isLoading ? 'Signing in...' : 'Sign in'}
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Don't have an account?</span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <Link
+                to="/signup"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-orange-600 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+              >
+                Sign up
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
 export default Login;
-
 // for login popup
 // import { useState } from "react";
 // import { assets } from "../../assets/assets";

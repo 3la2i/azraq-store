@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Home, Users, Truck, Utensils, ShoppingBag, LogOut, DollarSign, ChevronLeft, ChevronRight, Menu } from 'lucide-react'
+import { Home, Users, Truck, Utensils, ShoppingBag, LogOut, DollarSign, ChevronLeft, ChevronRight, Menu, MessageSquare, Mail } from 'lucide-react'
 import Swal from 'sweetalert2'
 import axios from 'axios'
 
@@ -29,6 +29,8 @@ const Admin = () => {
     { path: '/admin/drivers', icon: Truck, label: 'Drivers' },
     { path: '/admin/users', icon: Users, label: 'Users' },
     { path: '/admin/profit', icon: DollarSign, label: 'Profit' },
+    { path: '/admin/testimonials', icon: MessageSquare, label: 'Testimonials' },
+    { path: '/admin/contact-messages', icon: Mail, label: 'Contact Messages' },
   ]
 
   const handleLogout = () => {
@@ -147,6 +149,7 @@ const Admin = () => {
               <StatCard icon={ShoppingBag} label="Products" value={dashboardStats.products} />
               <StatCard icon={Truck} label="Drivers" value={dashboardStats.drivers} />
               <StatCard icon={ShoppingBag} label="Orders" value={dashboardStats.orders} />
+              <StatCard icon={MessageSquare} label="Testimonials" value={dashboardStats.testimonials || 0} />
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-lg font-semibold mb-4 text-gray-900">Transactions</h3>
                 <div className="grid grid-cols-2 gap-4">

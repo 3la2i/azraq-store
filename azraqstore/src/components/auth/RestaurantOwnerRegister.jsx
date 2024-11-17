@@ -43,7 +43,7 @@ const RestaurantOwnerRegister = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-100">
       {/* Hero Section */}
-      <div className="bg-red-600 text-white py-20 px-4 sm:px-6 lg:px-8">
+      <div className="bg-tomato text-white py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl font-extrabold sm:text-5xl md:text-6xl">
             Expand Your Restaurant's Reach
@@ -62,7 +62,7 @@ const RestaurantOwnerRegister = () => {
           </h2>
           <div className="mt-10 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
             <div className="flex flex-col items-center">
-              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-red-500 text-white mb-4">
+              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-tomato text-white mb-4">
                 <Users className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-medium text-gray-900">Expand Your Customer Base</h3>
@@ -71,7 +71,7 @@ const RestaurantOwnerRegister = () => {
               </p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-red-500 text-white mb-4">
+              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-tomato text-white mb-4">
                 <TrendingUp className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-medium text-gray-900">Boost Your Revenue</h3>
@@ -80,7 +80,7 @@ const RestaurantOwnerRegister = () => {
               </p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-red-500 text-white mb-4">
+              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-tomato text-white mb-4">
                 <Star className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-medium text-gray-900">Enhance Your Brand</h3>
