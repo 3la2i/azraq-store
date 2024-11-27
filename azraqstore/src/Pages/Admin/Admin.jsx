@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Home, Users, Truck, Utensils, ShoppingBag, LogOut, DollarSign, ChevronLeft, ChevronRight, Menu, MessageSquare, Mail, FileText } from 'lucide-react'
 import Swal from 'sweetalert2'
 import axios from 'axios'
 
 const Admin = () => {
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [dashboardStats, setDashboardStats] = useState(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const location = useLocation()
 
   useEffect(() => {
+    // Check user role when component mounts
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || user.role !== 'admin') {
+      navigate('/', { replace: true });
+      return;
+    }
+
     fetchDashboardStats()
-  }, [])
+  }, [navigate])
 
   const fetchDashboardStats = async () => {
     try {
@@ -24,7 +32,7 @@ const Admin = () => {
   }
 
   const menuItems = [
-    { path: '/admin', icon: Home, label: 'Dashboard' },
+    { path: '/admin/dashboard', icon: Home, label: 'Dashboard' },
     { path: '/admin/restaurant-management', icon: Utensils, label: 'Restaurants' },
     { path: '/admin/drivers', icon: Truck, label: 'Drivers' },
     { path: '/admin/users', icon: Users, label: 'Users' },
@@ -143,7 +151,7 @@ const Admin = () => {
         )}
 
         <main className="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
-          {location.pathname === '/admin' && dashboardStats && (
+          {location.pathname === '/admin/dashboard' && dashboardStats && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               <StatCard icon={Users} label="Users" value={dashboardStats.users} />
               <StatCard icon={Utensils} label="Restaurants" value={dashboardStats.restaurants} />

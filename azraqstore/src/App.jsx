@@ -40,6 +40,7 @@ import ContactMessages from './Pages/Admin/ContactMessages';
 // Add this to your imports
 import RequestForm from './Pages/RequestForm/RequestForm';
 import RequestManagement from './Pages/Admin/RequestManagement';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 
 const App = () => {
   const location = useLocation();
@@ -48,17 +49,24 @@ const App = () => {
     <div className="app">
       <Navbar />
       <Routes>
-        <Route path="/admin" element={<Admin />}>
-          <Route path="restaurants" element={<Restaurants />} />
-          <Route path="products" element={<Products />} />
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedAdminRoute>
+              <Admin />
+            </ProtectedAdminRoute>
+          }
+        >
+          <Route path="dashboard" element={<div />} />
+          <Route path="restaurant-management" element={<RestaurantManagement />} />
           <Route path="drivers" element={<Drivers />} />
           <Route path="users" element={<AllUsers />} />
           <Route path="profit" element={<Profit />} />
-          <Route path="restaurant-management" element={<RestaurantManagement />} />
           <Route path="testimonials" element={<TestimonialManagement />} />
           <Route path="contact-messages" element={<ContactMessages />} />
           <Route path="requests" element={<RequestManagement />} />
         </Route>
+
         <Route path="/" element={<LandingPage />} />
         <Route path="/cart" element={<Cart />} />
    
@@ -93,7 +101,6 @@ const App = () => {
         <Route path="/request" element={<RequestForm />} />
       </Routes>
       {location.pathname !== "/admin" && <Footer />}
-      {/* {location.pathname !== "/driver" && <Footer />} */}
     </div>
   );
 };

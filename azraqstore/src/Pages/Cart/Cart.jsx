@@ -6,6 +6,49 @@ import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 
 const TableRow = ({ item, removeItem, updateQuantity }) => (
+  <div className="md:hidden mb-4 p-4 bg-gray-50 rounded-lg">
+    <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center flex-1">
+        <img 
+          src={`http://localhost:5000/${item?.product?.image}`} 
+          alt={item?.product?.name} 
+          className="w-16 h-16 object-cover rounded-md mr-3" 
+        />
+        <span className="font-medium text-gray-800">{item?.product?.name}</span>
+      </div>
+      <button 
+        onClick={() => removeItem(item?.product?._id)} 
+        className="text-red-500 hover:text-red-700 transition-colors ml-2"
+      >
+        <X size={20} />
+      </button>
+    </div>
+    <div className="flex justify-between items-center">
+      <div className="text-gray-600">
+        <p>Price: ${item?.price.toFixed(2)}</p>
+        <p className="font-medium">Total: ${(item?.price * item?.quantity).toFixed(2)}</p>
+      </div>
+      <div className="flex items-center space-x-2">
+        <button 
+          onClick={() => updateQuantity(item?.product?._id, Math.max(1, item.quantity - 1))}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded"
+          disabled={item.quantity <= 1}
+        >
+          -
+        </button>
+        <span className="w-8 text-center">{item?.quantity}</span>
+        <button 
+          onClick={() => updateQuantity(item?.product?._id, item.quantity + 1)}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded"
+        >
+          +
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+const DesktopTableRow = ({ item, removeItem, updateQuantity }) => (
   <tr className="border-b border-gray-200">
     <td className="py-4 px-2">
       <div className="flex items-center">
@@ -278,20 +321,34 @@ const Cart = () => {
   }
 
   return (
-    <div className="bg-red-50 min-h-screen py-12">
+    <div className="bg-red-50 min-h-screen py-6 sm:py-12">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold text-red-600 mb-8 text-center">Your Cart</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-red-600 mb-6 sm:mb-8 text-center">Your Cart</h1>
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="p-6 md:p-8">
-            <div className="flex flex-col lg:flex-row gap-8">
+          <div className="p-4 sm:p-6 md:p-8">
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
               <div className="lg:w-2/3">
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4">Cart Items</h2>
+                <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4">Cart Items</h2>
                 {restaurantName && (
                   <p className="mb-4 text-gray-600">
                     Restaurant: <span className="font-medium text-red-600">{restaurantName}</span>
                   </p>
                 )}
-                <div className="overflow-x-auto">
+                
+                {/* Mobile view */}
+                <div className="md:hidden">
+                  {cart.items.map(item => (
+                    <TableRow 
+                      key={item.product?._id} 
+                      item={item} 
+                      removeItem={removeItem}
+                      updateQuantity={updateQuantity}
+                    />
+                  ))}
+                </div>
+
+                {/* Desktop view */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-gray-200">
@@ -304,7 +361,7 @@ const Cart = () => {
                     </thead>
                     <tbody>
                       {cart.items.map(item => (
-                        <TableRow 
+                        <DesktopTableRow 
                           key={item.product?._id} 
                           item={item} 
                           removeItem={removeItem}
@@ -314,8 +371,10 @@ const Cart = () => {
                     </tbody>
                   </table>
                 </div>
-                <div className="mt-6 bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Order Summary</h3>
+
+                {/* Order Summary - make it sticky on mobile */}
+                <div className="mt-6 bg-gray-50 p-4 rounded-lg sticky top-0 z-10">
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Order Summary</h3>
                   <div className="flex justify-between py-2">
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-medium">${cart.total.toFixed(2)}</span>
@@ -330,23 +389,27 @@ const Cart = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Delivery Information Section */}
               <div className="lg:w-1/3">
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4">Delivery Information</h2>
-                <form className="space-y-4">
-                  <input
-                    type="text"
-                    name="firstName"
-                    placeholder="First Name"
-                    className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                    onChange={handleDeliveryInfoChange}
-                  />
-                  <input
-                    type="text"
-                    name="lastName"
-                    placeholder="Last Name"
-                    className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                    onChange={handleDeliveryInfoChange}
-                  />
+                <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4">Delivery Information</h2>
+                <form className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <input
+                      type="text"
+                      name="firstName"
+                      placeholder="First Name"
+                      className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                      onChange={handleDeliveryInfoChange}
+                    />
+                    <input
+                      type="text"
+                      name="lastName"
+                      placeholder="Last Name"
+                      className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                      onChange={handleDeliveryInfoChange}
+                    />
+                  </div>
                   <input
                     type="email"
                     name="email"
@@ -376,8 +439,10 @@ const Cart = () => {
                     onChange={handleDeliveryInfoChange}
                   />
                 </form>
-                <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Payment Method</h2>
-                <div className="space-y-4">
+
+                {/* Payment Method Section */}
+                <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mt-6 sm:mt-8 mb-4">Payment Method</h2>
+                <div className="space-y-3 sm:space-y-4">
                   <label className="flex items-center space-x-3 cursor-pointer">
                     <input
                       type="radio"
@@ -408,25 +473,28 @@ const Cart = () => {
                   </label>
                 </div>
                 
-                {paymentMethod === 'paypal' ? (
-                  <div className="mt-6">
-                    <PayPalScriptProvider options={{ "client-id": "AZZnJo9B4ulFid8Kdc6--QozivoXGg7263KyHe5KFomW-t-qQQ4cWR7l2lFScv10s0N_iq-DQpewLwDJ" }}>
-                      <PayPalButtons
-                        createOrder={createOrder}
-                        onApprove={onApprove}
-                        style={{ layout: "horizontal" }}
-                      />
-                    </PayPalScriptProvider>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => submitOrder()}
-                    className="mt-6 w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors duration-300 flex items-center justify-center"
-                  >
-                    <Truck size={20} className="mr-2" />
-                    SUBMIT ORDER
-                  </button>
-                )}
+                {/* Submit Button - make it fixed at bottom on mobile */}
+                <div className="mt-6 sm:mt-8 sticky bottom-0 left-0 right-0 bg-white p-4 sm:p-0 shadow-lg sm:shadow-none">
+                  {paymentMethod === 'paypal' ? (
+                    <div className="w-full max-w-md mx-auto">
+                      <PayPalScriptProvider options={{ "client-id": "AZZnJo9B4ulFid8Kdc6--QozivoXGg7263KyHe5KFomW-t-qQQ4cWR7l2lFScv10s0N_iq-DQpewLwDJ" }}>
+                        <PayPalButtons
+                          createOrder={createOrder}
+                          onApprove={onApprove}
+                          style={{ layout: "horizontal" }}
+                        />
+                      </PayPalScriptProvider>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => submitOrder()}
+                      className="w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors duration-300 flex items-center justify-center"
+                    >
+                      <Truck size={20} className="mr-2" />
+                      SUBMIT ORDER
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
