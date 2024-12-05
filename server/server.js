@@ -38,7 +38,12 @@ const requestRoutes = require('./Routes/requestRoutes');
 
 // Basic middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://192.168.1.141:5173'], // Replace with same IP
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Debugging middleware
 app.use((req, res, next) => {
@@ -117,6 +122,8 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is accessible at http://localhost:${PORT}`);
+  console.log(`For local network access use: http://YOUR_LOCAL_IP:${PORT}`);
 });

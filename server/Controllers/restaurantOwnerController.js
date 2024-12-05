@@ -27,7 +27,7 @@ exports.getMyRestaurant = async (req, res) => {
     if (!req.user.userId) {
       console.log('No user ID found in request');
       return res.status(400).json({ message: 'User ID not found in token' });
-    }
+    }     
     
     console.log('Searching for restaurant with owner:', req.user.userId);
     const restaurant = await Restaurant.findOne({ owner: req.user.userId });

@@ -56,6 +56,7 @@ const restaurantSchema = new Schema({
     saturday: { open: String, close: String },
     sunday: { open: String, close: String }
   },
+
   isActive: {
     type: Boolean,
     default: false
@@ -69,3 +70,11 @@ const restaurantSchema = new Schema({
 });
 
 module.exports = mongoose.model("Restaurant", restaurantSchema);
+
+
+
+
+
+
+
+
